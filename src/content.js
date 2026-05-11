@@ -44,8 +44,8 @@ export const SITE_CONTENT = {
       num: "02",
       title: "Cartaz",
       meta: "Horário contínuo das 17h às 02h.",
-      stage: "Palco Emotion",
-      stage_label: "Palco Emotion",
+      stage: "Palco Principal",
+      stage_label: "Palco Principal",
       rows: [
         ["17:00", "ABERTURA", "—"],
         ["17:00 — 19:00", "MICHEL FARIA e Banda", "Pagode"],
@@ -201,8 +201,8 @@ export const SITE_CONTENT = {
       num: "02",
       title: "Lineup",
       meta: "Continuous schedule from 5 PM to 2 AM.",
-      stage: "Emotion Stage",
-      stage_label: "Emotion Stage",
+      stage: "Main Stage",
+      stage_label: "Main Stage",
       rows: [
         ["17:00", "DOORS OPEN", "—"],
         ["17:00 — 19:00", "MICHEL FARIA and Band", "Pagode"],
