@@ -37,7 +37,7 @@ export const SITE_CONTENT = {
         ["10k+", "Estudantes alcançados"],
         ["10", "Núcleos envolvidos"],
         ["30+", "Organizadores"],
-        ["11h", "De festa contínua"],
+        ["9h", "De festa contínua"],
       ],
     },
     lineup: {
@@ -194,7 +194,7 @@ export const SITE_CONTENT = {
         ["10k+", "Students reached"],
         ["10", "Student bodies"],
         ["30+", "Organizers"],
-        ["11h", "Of continuous festival"],
+        ["9h", "Of continuous festival"],
       ],
     },
     lineup: {
