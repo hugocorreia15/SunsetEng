@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { SITE_CONTENT } from "./content.js";
 import Nav from "./components/Nav.jsx";
 import Hero from "./components/Hero.jsx";
@@ -43,6 +44,7 @@ export default function App() {
       <Team t={t} lang={lang} />
       <Location t={t} lang={lang} />
       <Footer t={t} lang={lang} />
+      <Analytics />
     </>
   );
 }
