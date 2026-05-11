@@ -1,0 +1,591 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   SUNSET D'ENGENHARIAS 2026 — design tokens exposed as Tailwind utilities
+   ========================================================================== */
+
+@theme {
+  --color-sun-magenta: #e8357d;
+  --color-sun-coral: #ff5a47;
+  --color-sun-orange: #ff7a1a;
+  --color-sun-amber: #ffb020;
+  --color-sun-yellow: #ffd447;
+  --color-sun-deep: #8a1538;
+  --color-sun-night: #1a0a1e;
+  --color-ink: #140a16;
+  --color-paper: #fff8ef;
+  --color-paper-2: #ffeedd;
+
+  --font-display: "Anton", "Archivo Black", Impact, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --breakpoint-md: 700px;
+  --breakpoint-lg: 900px;
+}
+
+/* Dynamic tokens (theme / palette switches) */
+:root {
+  --bg: var(--color-paper);
+  --fg: var(--color-ink);
+  --bg-2: var(--color-paper-2);
+  --line: rgba(20, 10, 22, 0.12);
+  --line-strong: rgba(20, 10, 22, 0.5);
+  --accent: var(--color-sun-coral);
+  --type-scale: 1;
+  --bg-intensity: 1;
+  --sun-magenta: var(--color-sun-magenta);
+  --sun-coral: var(--color-sun-coral);
+  --sun-orange: var(--color-sun-orange);
+  --sun-amber: var(--color-sun-amber);
+  --sun-yellow: var(--color-sun-yellow);
+  --sun-deep: var(--color-sun-deep);
+  --sun-night: var(--color-sun-night);
+}
+
+[data-theme="dark"] {
+  --bg: #0e0710;
+  --fg: #ffeedd;
+  --bg-2: #19101c;
+  --line: rgba(255, 238, 221, 0.12);
+  --line-strong: rgba(255, 238, 221, 0.4);
+}
+
+[data-palette="dusk"] {
+  --sun-magenta: #7a3cff;
+  --sun-coral: #ff4d8f;
+  --sun-orange: #ff6b6b;
+  --sun-amber: #ffa94d;
+  --sun-yellow: #ffd866;
+  --sun-deep: #2a1160;
+  --sun-night: #0a0320;
+}
+[data-palette="ember"] {
+  --sun-magenta: #c21e3a;
+  --sun-coral: #ff4820;
+  --sun-orange: #ff8a00;
+  --sun-amber: #ffc233;
+  --sun-yellow: #fff066;
+  --sun-deep: #5a0e1a;
+  --sun-night: #140608;
+}
+[data-palette="lagoon"] {
+  --sun-magenta: #ff5577;
+  --sun-coral: #ff9a44;
+  --sun-orange: #ffd23f;
+  --sun-amber: #34d1bf;
+  --sun-yellow: #9be7c4;
+  --sun-deep: #0b3a5c;
+  --sun-night: #06132a;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: calc(16px * var(--type-scale));
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 1000;
+    mix-blend-mode: multiply;
+  }
+  [data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.06; }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  button { cursor: pointer; font: inherit; color: inherit; background: transparent; border: 0; padding: 0; }
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
+}
+
+/* ==========================================================================
+   Reusable primitives (can be replaced in JSX by Tailwind utilities; kept here
+   because they encode design constants used across many components.)
+   ========================================================================== */
+.container-x { max-width: 1440px; margin-inline: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; font-weight: 500; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn:hover { background: var(--fg); color: var(--bg); }
+.btn-accent {
+  background: linear-gradient(135deg, var(--sun-coral), var(--sun-amber));
+  color: #1a0a1e;
+  border: none;
+  font-weight: 700;
+}
+.btn-accent:hover {
+  background: linear-gradient(135deg, var(--sun-magenta), var(--sun-coral));
+  color: #fff;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+/* Striped placeholder (repeating-gradient can't be a simple utility) */
+.stripe-placeholder {
+  position: relative;
+  background: repeating-linear-gradient(45deg, var(--bg-2), var(--bg-2) 10px, var(--bg) 10px, var(--bg) 20px);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+}
+.stripe-placeholder::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,122,26,0.08) 60%, transparent 80%);
+  pointer-events: none;
+}
+.stripe-placeholder__label {
+  position: relative; z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg);
+  background: var(--bg);
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--line-strong);
+  text-align: center;
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+.hero__sun {
+  position: absolute;
+  left: 50%;
+  bottom: -5%;
+  width: 80vmin; height: 80vmin;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+    var(--sun-yellow) 0%,
+    var(--sun-amber) 25%,
+    var(--sun-orange) 50%,
+    var(--sun-coral) 70%,
+    var(--sun-magenta) 90%);
+  opacity: calc(0.85 * var(--bg-intensity));
+  filter: blur(2px);
+  box-shadow: 0 0 120px 40px rgba(255,122,26,0.5), 0 0 200px 80px rgba(232,53,125,0.3);
+  animation: sunPulse 8s ease-in-out infinite;
+}
+@keyframes sunPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50%      { transform: translateX(-50%) scale(1.04); }
+}
+
+.hero__horizon {
+  position: absolute; left: 0; right: 0; bottom: 35%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line-strong) 20%, var(--line-strong) 80%, transparent);
+  z-index: 1;
+}
+
+.hero__rays {
+  position: absolute; left: 50%; bottom: -20%;
+  transform: translateX(-50%);
+  width: 120vmin; height: 120vmin;
+  z-index: 0;
+  opacity: calc(0.3 * var(--bg-intensity));
+  animation: rayRotate 60s linear infinite;
+}
+@keyframes rayRotate {
+  from { transform: translateX(-50%) rotate(0deg); }
+  to   { transform: translateX(-50%) rotate(360deg); }
+}
+
+@media (max-width: 700px) {
+  .hero__sun  { bottom: 15%; width: 95vmin; height: 95vmin; }
+  .hero__rays { bottom: calc(15% - 22.5vmin); width: 140vmin; height: 140vmin; }
+}
+
+.hero__stripes {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 35%;
+  z-index: 1;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0, transparent 40px, color-mix(in oklab, var(--sun-deep) 20%, transparent) 40px, color-mix(in oklab, var(--sun-deep) 20%, transparent) 41px),
+    repeating-linear-gradient(0deg,  transparent 0, transparent 40px, color-mix(in oklab, var(--sun-deep) 15%, transparent) 40px, color-mix(in oklab, var(--sun-deep) 15%, transparent) 41px);
+  mask-image: linear-gradient(to bottom, transparent, #000 60%);
+  opacity: var(--bg-intensity);
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 13vw, 13rem);
+  line-height: 0.82;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  color: var(--fg);
+  mix-blend-mode: difference;
+  position: relative;
+  z-index: 3;
+}
+[data-theme="dark"] .hero__title { mix-blend-mode: screen; color: var(--sun-yellow); }
+
+/* Gear */
+.gear {
+  position: absolute;
+  z-index: 1;
+  color: var(--sun-yellow);
+  opacity: calc(0.8 * var(--bg-intensity));
+  animation: gearSpin 40s linear infinite;
+}
+.gear--hero { right: -10vmin; top: 20%; width: 45vmin; height: 45vmin; }
+.gear--small {
+  left: -5%; bottom: 30%;
+  width: 20vmin; height: 20vmin;
+  animation-direction: reverse;
+  animation-duration: 30s;
+  color: var(--sun-coral);
+  opacity: 0.7;
+}
+@keyframes gearSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   About — drop cap + gradient text clipping
+   ========================================================================== */
+.about__drop-cap p:first-child::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  line-height: 0.9;
+  padding: 0.3rem 0.6rem 0 0;
+  color: var(--accent);
+}
+
+.stat__num {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  background: linear-gradient(135deg, var(--sun-coral), var(--sun-amber));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ==========================================================================
+   Lineup
+   ========================================================================== */
+.lineup-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto 200px;
+  gap: 2rem;
+  padding: 1.8rem 0;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  transition: background 0.3s, padding-left 0.3s;
+}
+.lineup-row:hover { background: var(--bg-2); padding-left: 1rem; }
+@media (max-width: 700px) {
+  .lineup-row { grid-template-columns: 1fr; gap: 0.5rem; }
+}
+
+/* ==========================================================================
+   Gallery
+   ========================================================================== */
+.gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 140px;
+  gap: 1rem;
+}
+.gallery-item--drone { grid-column: span 4; grid-row: span 3; }
+.gallery-item--tall  { grid-column: span 2; grid-row: span 3; }
+.gallery-item--wide  { grid-column: span 3; grid-row: span 2; }
+.gallery-item--square, .gallery-item--small { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 900px) {
+  .gallery__grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery-item--drone,
+  .gallery-item--tall,
+  .gallery-item--wide,
+  .gallery-item--square,
+  .gallery-item--small { grid-column: span 2; grid-row: span 2; }
+}
+
+/* ==========================================================================
+   Sponsors — carousels + tier gradient
+   ========================================================================== */
+.sponsor-carousel {
+  overflow: hidden;
+  padding: 1.5rem 0;
+  background: var(--bg-2);
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.sponsor-carousel__track {
+  display: flex;
+  gap: 1.5rem;
+  animation: sponsorScroll var(--dur, 30s) linear infinite;
+  width: max-content;
+}
+.sponsor-tier:hover .sponsor-carousel__track { animation-play-state: paused; }
+@keyframes sponsorScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.sponsor-tier--main-head {
+  background: linear-gradient(135deg, var(--sun-coral), var(--sun-amber));
+  color: #140a16;
+  border-bottom-color: rgba(20,10,22,0.2) !important;
+}
+
+/* Sponsor logo theme swap (dual-asset) */
+.sponsor-logo--dark { display: none; }
+[data-theme="dark"] .sponsor-logo--light { display: none; }
+[data-theme="dark"] .sponsor-logo--dark  { display: block; }
+
+/* ==========================================================================
+   Team — gradient hover + variants
+   ========================================================================== */
+.member { position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(.2,.9,.3,1); }
+.member::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--sun-coral), var(--sun-amber));
+  opacity: 0; transition: opacity 0.3s;
+  z-index: 0;
+}
+.member:hover::before { opacity: 1; }
+.member:hover { color: #140a16; border-color: transparent; transform: translateY(-4px); }
+.member > * { position: relative; z-index: 1; }
+
+.nucleo-badge { transition: all 0.3s; }
+.nucleo-badge:hover { background: var(--fg); color: var(--bg); transform: rotate(-2deg) scale(1.05); }
+
+[data-team-variant="list"] .team__grid {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0 !important;
+}
+[data-team-variant="list"] .member {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 1.2rem;
+}
+[data-team-variant="dense"] .team__grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  gap: 0.4rem !important;
+}
+[data-team-variant="dense"] .member { padding: 0.8rem; }
+[data-team-variant="dense"] .member__name { font-size: 0.95rem; }
+
+/* ==========================================================================
+   Location — Leaflet overrides + pin
+   ========================================================================== */
+[data-theme="dark"] .map-leaflet { filter: invert(0.92) hue-rotate(180deg) saturate(0.7) brightness(0.95); }
+.sunset-pin { position: relative; }
+.sunset-pin__ring {
+  position: absolute; top: 50%; left: 50%;
+  width: 60px; height: 60px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255,106,26,0.15);
+  animation: pinPulse 2s ease-in-out infinite;
+}
+.sunset-pin__dot {
+  position: absolute; top: 50%; left: 50%;
+  width: 16px; height: 16px;
+  transform: translate(-50%, -50%);
+  background: var(--sun-coral);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(255,90,71,0.35), 0 2px 10px rgba(0,0,0,0.3);
+}
+.sunset-pin__label {
+  position: absolute; top: calc(50% + 18px); left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+}
+@keyframes pinPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 0.7; }
+  50%      { transform: translate(-50%, -50%) scale(1.4); opacity: 0.2; }
+}
+.leaflet-container { font-family: var(--font-body); }
+.leaflet-popup-content-wrapper {
+  border-radius: 0;
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.leaflet-popup-content { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em; line-height: 1.5; margin: 0.75rem 1rem; }
+.leaflet-popup-content strong { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.02em; text-transform: uppercase; }
+
+/* ==========================================================================
+   Venue map — many absolute zones + stylised terrain
+   ========================================================================== */
+.venue-map__canvas {
+  position: relative;
+  aspect-ratio: 5 / 2;
+  width: 100%;
+  overflow: hidden;
+  background: #4a6e3e;
+}
+.venue-map__terrain {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 40%, #5a8048 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 70%, #6b8a4e 0%, transparent 60%),
+    repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 3px, transparent 3px 7px),
+    linear-gradient(180deg, #4a6e3e, #3d5c33);
+}
+.venue-map__terrain::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 20%;
+  background: linear-gradient(180deg, transparent, rgba(180,180,180,0.25));
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+.venue-map__building {
+  position: absolute; left: 0; top: 15%;
+  width: 18%; height: 65%;
+  background: linear-gradient(180deg, #cfcfcf, #9a9a9a);
+  border: 1px solid rgba(0,0,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.venue-map__building-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: #333;
+  text-transform: uppercase;
+  transform: rotate(-90deg);
+  white-space: nowrap;
+}
+.zone {
+  position: absolute;
+  border: 1px solid rgba(0,0,0,0.4);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.zone:hover { transform: scale(1.08) translateZ(0); z-index: 5; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+.zone--featured { border: 2px solid rgba(255,255,255,0.6); box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4); }
+.zone__stage-label {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: #fff;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .venue-map__canvas { aspect-ratio: 4 / 3; }
+  .zone__stage-label { font-size: 0.6rem; }
+}
+
+/* ==========================================================================
+   Marquee
+   ========================================================================== */
+.marquee__track {
+  display: flex;
+  gap: 3rem;
+  animation: marquee 40s linear infinite;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding-right: 3rem;
+}
+.marquee__track span::before {
+  content: "✦";
+  margin-right: 3rem;
+  color: var(--sun-amber);
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.sponsor-marquee {
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+.sponsor-marquee:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .sponsor-marquee { animation: none; }
+}
+
+/* ==========================================================================
+   Footer wordmark (stroked text)
+   ========================================================================== */
+.footer__big {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 18vw, 18rem);
+  line-height: 0.85;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--bg);
+  opacity: 0.55;
+  margin: 2rem 0;
+}
+
+/* ==========================================================================
+   Reveal on scroll
+   ========================================================================== */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s, transform 0.8s; }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ==========================================================================
+   TweaksPanel — box-shadow depends on theme
+   ========================================================================== */
+.tweaks-panel { box-shadow: 8px 8px 0 var(--color-ink); }
+[data-theme="dark"] .tweaks-panel { box-shadow: 8px 8px 0 var(--sun-yellow); }
+
+/* Helper class to read dynamic tokens as Tailwind-like utilities */
+@utility bg-surface  { background-color: var(--bg); }
+@utility bg-surface-2 { background-color: var(--bg-2); }
+@utility text-fg     { color: var(--fg); }
+@utility text-bg     { color: var(--bg); }
+@utility border-line { border-color: var(--line); }
+@utility border-line-strong { border-color: var(--line-strong); }
