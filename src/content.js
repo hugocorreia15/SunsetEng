@@ -118,7 +118,7 @@ export const SITE_CONTENT = {
       title: "Local",
       meta: "Campus Universitário de Santiago, Universidade de Aveiro",
       address_label: "Morada",
-      address: "Campus Universitário de GASantiago",
+      address: "Campus Universitário de Santiago",
       address_sub: "3810-193 Aveiro, Portugal",
       date_label: "Data & horário",
       date: "13 de Maio de 2026",

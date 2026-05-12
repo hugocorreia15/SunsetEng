@@ -6,7 +6,7 @@ const VENUE_COORDS = [40.63166, -8.660354];
 
 const pinIcon = L.divIcon({
   className: "sunset-pin",
-  html: `<div class="sunset-pin__ring"></div><div class="sunset-pin__dot"></div><div class="sunset-pin__label">EMOTION STAGE</div>`,
+  html: `<div class="sunset-pin__ring"></div><div class="sunset-pin__dot"></div><div class="sunset-pin__label">Palco <img src="/sponsors/palco/logo_emotion.png" alt="Emotion" class="palco-pin-logo" /></div>`,
   iconSize: [120, 120],
   iconAnchor: [60, 60],
 });
@@ -62,7 +62,9 @@ export default function Location({ t, lang }) {
                 />
                 <Marker position={VENUE_COORDS} icon={pinIcon}>
                   <Popup>
-                    <strong>Palco Emotion</strong><br/>
+                    <strong style={{ display: "inline-flex", alignItems: "center", gap: "0.35em" }}>
+                      Palco <img src="/sponsors/palco/logo_emotion.png" alt="Emotion" className="palco-popup-logo" />
+                    </strong><br/>
                     Campus de Santiago · UA<br/>
                     40.6317° N, 8.6604° W
                   </Popup>
