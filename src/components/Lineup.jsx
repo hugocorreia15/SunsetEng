@@ -6,13 +6,31 @@ export default function Lineup({ t }) {
       <div className="container-x">
         <SectionHead num={t.lineup.num} title={t.lineup.title} meta={t.lineup.meta} />
 
-        <div className="flex items-baseline gap-4 mb-8 pb-4 border-b border-[color:var(--line)]">
+        <div className="flex items-center gap-4 mb-8 pb-4 border-b border-[color:var(--line)]">
           <div
             className="font-display text-[clamp(1.8rem,3.5vw,3rem)] leading-none tracking-[0.02em] bg-clip-text text-transparent"
             style={{ background: "linear-gradient(135deg, var(--sun-coral), var(--sun-amber))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
           >
-            {t.lineup.stage}
+            Palco
           </div>
+          <a href="https://www.emotionportugal.pt/" target="_blank" rel="noreferrer" title="Emotion" className="inline-flex">
+            <span
+              aria-label="Emotion"
+              role="img"
+              className="block h-[clamp(2.4rem,5vw,4rem)] aspect-[7169/1914]"
+              style={{
+                background: "linear-gradient(135deg, var(--sun-coral), var(--sun-amber))",
+                WebkitMaskImage: "url(/sponsors/palco/logo_emotion.png)",
+                maskImage: "url(/sponsors/palco/logo_emotion.png)",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+              }}
+            />
+          </a>
         </div>
 
         <div className="flex flex-col">

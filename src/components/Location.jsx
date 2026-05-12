@@ -62,7 +62,7 @@ export default function Location({ t, lang }) {
                 />
                 <Marker position={VENUE_COORDS} icon={pinIcon}>
                   <Popup>
-                    <strong>Palco Principal</strong><br/>
+                    <strong>Palco Emotion</strong><br/>
                     Campus de Santiago · UA<br/>
                     40.6317° N, 8.6604° W
                   </Popup>

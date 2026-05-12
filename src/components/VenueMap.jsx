@@ -2,7 +2,7 @@ export default function VenueMap({ t, lang }) {
   const zones = [
     { id: "beer",    color: "#e63946", label_pt: "Bar · Cerveja",        label_en: "Bar · Beer",         x: 34, y: 18, w: 14, h: 7 },
     { id: "beer2",   color: "#1a1a1a", label_pt: "Bar · Cerveja",        label_en: "Bar · Beer",         x: 47, y: 18, w: 6,  h: 7 },
-    { id: "stage",   color: "#6b3a1a", label_pt: "Palco Principal",      label_en: "Main Stage",         x: 14, y: 40, w: 7,  h: 16, featured: true },
+    { id: "stage",   color: "#6b3a1a", label_pt: "Palco Emotion",        label_en: "Palco Emotion",      x: 14, y: 40, w: 7,  h: 16, featured: true },
     { id: "gin",     color: "#5ec3d8", label_pt: "Bar · Gins",           label_en: "Bar · Gin",          x: 44, y: 44, w: 4,  h: 9 },
     { id: "photo",   color: "#ff6a1a", label_pt: "Photo Wall",           label_en: "Photo Wall",         x: 58, y: 26, w: 7,  h: 4,  rotate: -15 },
     { id: "tbd1",    color: "#2563eb", label_pt: "Zona a definir",       label_en: "TBD",                x: 62, y: 42, w: 8,  h: 6 },
@@ -64,7 +64,7 @@ export default function VenueMap({ t, lang }) {
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 p-6 bg-[color:var(--bg-2)] border-t border-[color:var(--line-strong)]">
         {[
-          { color: "#6b3a1a", pt: "Palco Principal", en: "Main Stage" },
+          { color: "#6b3a1a", pt: "Palco Emotion",   en: "Palco Emotion" },
           { color: "#e63946", pt: "Bar · Cerveja",  en: "Bar · Beer" },
           { color: "#5ec3d8", pt: "Bar · Gins",     en: "Bar · Gin" },
           { color: "#ffd23f", pt: "Comida",         en: "Food" },
