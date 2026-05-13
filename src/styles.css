@@ -296,7 +296,8 @@
 .stat__num {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 5vw, 4rem);
-  line-height: 1;
+  line-height: 1.15;
+  padding-top: 0.15em;
   background: linear-gradient(135deg, var(--sun-coral), var(--sun-amber));
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;

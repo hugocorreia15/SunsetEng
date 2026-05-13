@@ -34,7 +34,7 @@ export const SITE_CONTENT = {
       body_1: "O Sunset de Engenharias atinge em 2026 a sua terceira edição, consolidando-se como o evento de referência na promoção da coesão e do espírito de corpo entre os estudantes das áreas tecnológicas da Universidade de Aveiro. O que surgiu em 2024 como uma iniciativa de aproximação é hoje um compromisso, reconhecido pela sua capacidade de unir centenas de futuros engenheiros num ambiente de excelência e partilha.",
       body_2: "Mais do que um momento de lazer, a terceira edição simboliza a força de uma comunidade vibrante. Ao celebrarmos este percurso, renovamos a oportunidade para se associarem a um evento que reflete o prestígio, a inovação e a união que definem as Engenharias da UA.",
       stats: [
-        ["10k+", "Estudantes alcançados"],
+        ["3ª", "Edição"],
         ["10", "Núcleos envolvidos"],
         ["30+", "Organizadores"],
         ["9h", "De festa contínua"],
@@ -191,7 +191,7 @@ export const SITE_CONTENT = {
       body_1: "In 2026 Sunset D'Engenharias reaches its third edition, establishing itself as the reference event promoting cohesion and camaraderie among students from the technological areas of the University of Aveiro. What started in 2024 as an initiative of approach is today a commitment, recognized for bringing hundreds of future engineers into an environment of excellence and sharing.",
       body_2: "More than a moment of leisure, this third edition symbolizes the strength of a vibrant community. As we celebrate this journey, we renew the opportunity for brands to associate with an event that reflects the prestige, innovation and union that define Engineering at UA.",
       stats: [
-        ["10k+", "Students reached"],
+        ["3rd", "Edition"],
         ["10", "Student bodies"],
         ["30+", "Organizers"],
         ["9h", "Of continuous festival"],
