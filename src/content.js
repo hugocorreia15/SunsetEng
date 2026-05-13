@@ -342,6 +342,7 @@ export const TEAM_DATA = {
       ["Cristiano Oliveira", "NEEA"],
       ["Francisca Duarte", "AEGIA"],
       ["Diogo Santos", "NEEETA"],
+      ["Diogo Soares", "NEEF"],
       ["Rúben Formigal", "NEEA"],
     ]},
     { group: "Alimentação e Decoração", role: "Logística · F&B", members: [
