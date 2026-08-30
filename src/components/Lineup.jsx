@@ -1,8 +1,10 @@
 import SectionHead from "./SectionHead.jsx";
+import Ornaments from "./Ornaments.jsx";
 
 export default function Lineup({ t }) {
   return (
     <section className="py-24 relative" id="lineup" data-screen-label="Lineup">
+      <Ornaments preset="lineup" />
       <div className="container-x">
         <SectionHead num={t.lineup.num} title={t.lineup.title} meta={t.lineup.meta} />
 

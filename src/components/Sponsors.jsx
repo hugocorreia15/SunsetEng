@@ -1,4 +1,5 @@
 import SponsorCarousel from "./SponsorCarousel.jsx";
+import Ornaments from "./Ornaments.jsx";
 import MainSponsor from "./MainSponsor.jsx";
 import SectionHead from "./SectionHead.jsx";
 
@@ -8,6 +9,7 @@ export default function Sponsors({ t }) {
 
   return (
     <section className="py-24 relative" id="sponsors" data-screen-label="Sponsors">
+      <Ornaments preset="sponsors" />
       <div className="container-x">
         <SectionHead num={t.sponsors.num} title={t.sponsors.title} meta={t.sponsors.meta} />
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import Ornaments from "./Ornaments.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 const badgeCls = "absolute top-3 left-3 z-[3] font-mono text-[0.65rem] tracking-[0.15em] uppercase bg-[color:var(--fg)] text-[color:var(--bg)] px-[0.6rem] py-[0.3rem]";
@@ -65,6 +66,7 @@ export default function Gallery({ t }) {
 
   return (
     <section className="py-24 relative bg-[color:var(--bg-2)]" id="gallery" data-screen-label="Gallery">
+      <Ornaments preset="gallery" />
       <div className="container-x">
         <SectionHead num={t.gallery.num} title={t.gallery.title} meta={t.gallery.meta} />
         <div className="reveal gallery__grid">

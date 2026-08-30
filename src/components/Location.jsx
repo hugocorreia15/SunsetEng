@@ -1,4 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from "react-leaflet";
+import Ornaments from "./Ornaments.jsx";
 import L from "leaflet";
 import SectionHead from "./SectionHead.jsx";
 
@@ -18,6 +19,7 @@ const infoSub = "block font-mono text-[0.75rem] tracking-[0.15em] uppercase opac
 export default function Location({ t }) {
   return (
     <section className="py-24 relative" id="location" data-screen-label="Location">
+      <Ornaments preset="location" />
       <div className="container-x">
         <SectionHead num={t.location.num} title={t.location.title} meta={t.location.meta} />
 

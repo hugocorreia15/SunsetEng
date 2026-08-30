@@ -44,6 +44,38 @@ export default function App() {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
+  /* The day/night ramp is pure CSS, but a handful of things cannot be
+     interpolated — the dual-asset sponsor logos, the map's invert filter, the
+     grain's blend mode. Those key off data-lit, which tracks which end of the
+     cycle is currently showing. The theme toggle only decides where you start:
+     light begins at day and scrolls into night, dark does the reverse. */
+  useEffect(() => {
+    const root = document.documentElement;
+    const animated =
+      CSS.supports("animation-timeline: scroll()") &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!animated) {
+      root.dataset.lit = theme === "dark" ? "night" : "day";
+      return;
+    }
+
+    let frame = 0;
+    const apply = () => {
+      frame = 0;
+      const past = window.scrollY > window.innerHeight * 0.62;
+      root.dataset.lit = (theme === "dark" ? !past : past) ? "night" : "day";
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(apply); };
+
+    apply();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [theme]);
+
   useEffect(() => {
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("is-visible"); });

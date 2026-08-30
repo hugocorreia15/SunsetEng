@@ -1,8 +1,10 @@
 import SectionHead from "./SectionHead.jsx";
+import Ornaments from "./Ornaments.jsx";
 
 export default function About({ t }) {
   return (
     <section className="py-24 relative bg-[color:var(--bg-2)]" id="about" data-screen-label="About">
+      <Ornaments preset="about" />
       <div className="container-x">
         <SectionHead num={t.about.num} title={t.about.title} meta={t.about.meta} />
 

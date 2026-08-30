@@ -24,13 +24,24 @@
   --breakpoint-lg: 900px;
 }
 
-/* Dynamic tokens (theme / palette switches) */
+@property --page-bg   { syntax: "<color>"; inherits: true; initial-value: #fff8ef; }
+@property --page-bg-2 { syntax: "<color>"; inherits: true; initial-value: #ffeedd; }
+@property --page-fg   { syntax: "<color>"; inherits: true; initial-value: #140a16; }
+
+/* Dynamic tokens (theme / palette switches).
+   --page-* are the animated ends of the day/night ramp; every other token is
+   derived from them, so the whole document travels with the sun rather than
+   just the hero. */
 :root {
-  --bg: var(--color-paper);
-  --fg: var(--color-ink);
-  --bg-2: var(--color-paper-2);
-  --line: rgba(20, 10, 22, 0.12);
-  --line-strong: rgba(20, 10, 22, 0.5);
+  --page-bg: #fff8ef;
+  --page-bg-2: #ffeedd;
+  --page-fg: #140a16;
+
+  --bg: var(--page-bg);
+  --fg: var(--page-fg);
+  --bg-2: var(--page-bg-2);
+  --line: color-mix(in srgb, var(--page-fg) 13%, transparent);
+  --line-strong: color-mix(in srgb, var(--page-fg) 45%, transparent);
   --accent: var(--color-sun-coral);
   --type-scale: 1;
   --bg-intensity: 1;
@@ -43,12 +54,11 @@
   --sun-night: var(--color-sun-night);
 }
 
+/* The theme toggle now picks which end of the cycle you start at. */
 [data-theme="dark"] {
-  --bg: #0e0710;
-  --fg: #ffeedd;
-  --bg-2: #19101c;
-  --line: rgba(255, 238, 221, 0.12);
-  --line-strong: rgba(255, 238, 221, 0.4);
+  --page-bg: #0e0710;
+  --page-bg-2: #19101c;
+  --page-fg: #ffeedd;
 }
 
 [data-palette="dusk"] {
@@ -96,7 +106,8 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    transition: background 0.4s, color 0.4s;
+    /* No transition here: the day/night ramp drives --bg and --fg directly, and
+       a transition on top of it smears every scroll frame. */
   }
 
   body::before {
@@ -108,7 +119,7 @@
     z-index: 1000;
     mix-blend-mode: multiply;
   }
-  [data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.06; }
+  [data-lit="night"] body::before { mix-blend-mode: screen; opacity: 0.06; }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
@@ -116,6 +127,29 @@
     letter-spacing: 0.01em;
     line-height: 0.95;
     text-transform: uppercase;
+  }
+
+  /* The scrollbar is part of the page, not chrome around it. Square, like
+     every other edge in the design, and painted from the animated tokens so
+     it goes down with the sun. */
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--fg) 7%, transparent);
+    border-left: 1px solid var(--line);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--sun-coral), var(--sun-amber));
+    border: 3px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--sun-magenta), var(--sun-coral));
+  }
+  ::-webkit-scrollbar-corner { background: transparent; }
+
+  /* Firefox only: setting scrollbar-color in Chrome would disable the
+     ::-webkit-scrollbar rules above, so it is gated to engines without them. */
+  @supports (scrollbar-width: thin) and (not (selector(::-webkit-scrollbar))) {
+    html { scrollbar-width: thin; scrollbar-color: var(--sun-coral) transparent; }
   }
 
   button { cursor: pointer; font: inherit; color: inherit; background: transparent; border: 0; padding: 0; }
@@ -186,6 +220,117 @@
   50%      { transform: translate(calc(-50% + var(--px, 0px)), var(--py, 0px)) scale(1.04); }
 }
 
+/* --------------------------------------------------------------------------
+   Scroll-linked sunset
+   The page is named for a sunset, so scrolling performs one: the sun sinks
+   past the horizon, its rays go out, and the horizon line ignites as it
+   passes. Driven entirely by scroll-driven CSS animations — no JS, no scroll
+   listener — and gated behind @supports so unsupported browsers keep exactly
+   the static hero they have today.
+   -------------------------------------------------------------------------- */
+/* The section is a scroll runway; the sky pins inside it for one viewport
+   while the content slides up and away over the held horizon. */
+.hero {
+  position: relative;
+  height: 100vh;
+}
+
+.hero__sky { background: var(--bg); }
+.hero__sky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.hero__content {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  z-index: 2;
+  padding-top: 7rem;
+  display: flex;
+  flex-direction: column;
+}
+.hero__content > :last-child { margin-top: auto; }
+
+
+.hero__sun-track { position: absolute; inset: 0; }
+.hero__rays-layer { position: absolute; inset: 0; z-index: 0; }
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero { height: 165vh; }
+    @media (max-width: 700px) { .hero { height: 150vh; } }
+
+    /* Night falls as the sun goes down — and stays fallen. The animation sits
+       on :root with `both` fill, so every section below the hero holds the
+       night it ended on instead of snapping back to paper. The ramp travels
+       through the festival palette rather than crossfading paper straight to
+       black, which passes through a dead grey at the midpoint; the text flips
+       over a short window for the same reason. */
+    :root {
+      animation: nightfall linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 6vh 92vh;
+    }
+    @keyframes nightfall {
+      0%   { --page-bg: #fff8ef; --page-bg-2: #ffeedd; --page-fg: #140a16; }
+      30%  { --page-bg: #ffe3c0; --page-bg-2: #ffd7ad; --page-fg: #140a16; }
+      52%  { --page-bg: #f7a678; --page-bg-2: #f0946a; --page-fg: #140a16; }
+      62%  { --page-bg: #c85f70; --page-bg-2: #b85266; --page-fg: #1a0d14; }
+      70%  { --page-bg: #8d3560; --page-bg-2: #7d2d56; --page-fg: #ffeedd; }
+      85%  { --page-bg: #3d1a3d; --page-bg-2: #331635; --page-fg: #ffeedd; }
+      100% { --page-bg: #0e0710; --page-bg-2: #19101c; --page-fg: #ffeedd; }
+    }
+
+    /* Dark theme runs the same ramp backwards: night into day, a sunrise. */
+    :root[data-theme="dark"] { animation-direction: reverse; }
+
+    /* The disc dims as it goes, so it fades into the sky rather than staying a
+       bright blob on a night ground — it has no opaque earth to hide behind. */
+    .hero__sun {
+      animation: sunPulse 8s ease-in-out infinite, sunDim linear both;
+      animation-timeline: auto, scroll(root block);
+      animation-range: normal, 20vh 92vh;
+    }
+    @keyframes sunDim {
+      to { opacity: 0.22; filter: blur(14px); }
+    }
+
+    .hero__sun-track {
+      animation: sunSet linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 88vh;
+    }
+    @keyframes sunSet {
+      to { transform: translateY(58vh); }
+    }
+
+    /* The fade rides the wrapper so .hero__rays keeps rayRotate on its own
+       default timeline — one animation, one timeline, per element. */
+    .hero__rays-layer {
+      animation: raysOut linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 10vh 74vh;
+    }
+    @keyframes raysOut {
+      to { opacity: 0; }
+    }
+
+    /* The last light concentrates on the horizon as the sun crosses it. */
+    .hero__horizon {
+      animation: horizonGlow linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 72vh;
+    }
+    @keyframes horizonGlow {
+      0%   { opacity: 1; filter: none; }
+      55%  { opacity: 1; filter: drop-shadow(0 0 6px var(--sun-amber)); }
+      100% { opacity: 0.45; filter: drop-shadow(0 0 2px var(--sun-deep)); }
+    }
+  }
+}
+
 .hero__horizon {
   position: absolute; left: 0; right: 0; bottom: 35%;
   height: 1px;
@@ -194,7 +339,10 @@
 }
 
 .hero__rays {
-  position: absolute; left: 50%; bottom: -20%;
+  /* Concentric with the disc: the sun's centre sits at -5% + 40vmin from the
+     bottom, so a 120vmin ray field has to start at -5% - 20vmin to share it.
+     Off-centre rays read as a second, invisible sun. */
+  position: absolute; left: 50%; bottom: calc(-5% - 20vmin);
   transform: translateX(-50%);
   width: 120vmin; height: 120vmin;
   z-index: 0;
@@ -233,14 +381,14 @@
   position: relative;
   z-index: 3;
 }
-[data-theme="dark"] .hero__title { mix-blend-mode: screen; color: var(--sun-yellow); }
+[data-lit="night"] .hero__title { mix-blend-mode: screen; color: var(--sun-yellow); }
 
 /* Gear */
 .gear {
   position: absolute;
   z-index: 1;
-  color: var(--sun-yellow);
-  opacity: calc(0.8 * var(--bg-intensity));
+  color: var(--sun-amber);
+  opacity: calc(0.55 * var(--bg-intensity));
   animation: gearSpin 40s linear infinite;
 }
 .gear--hero { right: -10vmin; top: 20%; width: 45vmin; height: 45vmin; }
@@ -250,11 +398,49 @@
   animation-direction: reverse;
   animation-duration: 30s;
   color: var(--sun-coral);
-  opacity: 0.7;
+  opacity: 0.5;
 }
 @keyframes gearSpin {
   from { transform: translate(var(--px, 0px), var(--py, 0px)) rotate(0deg); }
   to   { transform: translate(var(--px, 0px), var(--py, 0px)) rotate(360deg); }
+}
+
+/* ==========================================================================
+   Ambient drafting marks
+   ========================================================================== */
+.ornaments {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.ornament {
+  position: absolute;
+  opacity: 0.3;
+}
+/* Round marks rotate; the ones with an obvious up drift instead. */
+.ornament--spin  { animation: gearSpin 60s linear infinite; }
+.ornament--drift { animation: ornamentDrift 26s ease-in-out infinite alternate; }
+@keyframes ornamentDrift {
+  from { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
+  to   { transform: translate3d(0, -2.2vmin, 0) rotate(1.5deg); }
+}
+.ornament > svg { width: 100%; height: 100%; display: block; }
+.ornament--amber   { color: var(--sun-amber); }
+.ornament--coral   { color: var(--sun-coral); }
+.ornament--magenta { color: var(--sun-magenta); }
+
+/* Content sits above the marks. Sections are already position:relative, but
+   .container-x is not, and unpositioned content paints below positioned
+   siblings regardless of source order. */
+section > .container-x { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ornament--spin, .ornament--drift { animation: none; }
+}
+@media (max-width: 700px) {
+  .ornament { opacity: 0.18; }
 }
 
 /* ==========================================================================
@@ -323,8 +509,8 @@
    ========================================================================== */
 /* Sponsor logo theme swap (dual-asset) */
 .sponsor-logo--dark { display: none; }
-[data-theme="dark"] .sponsor-logo--light { display: none; }
-[data-theme="dark"] .sponsor-logo--dark  { display: block; }
+[data-lit="night"] .sponsor-logo--light { display: none; }
+[data-lit="night"] .sponsor-logo--dark  { display: block; }
 
 /* ==========================================================================
    Team — gradient hover + variants
@@ -344,7 +530,7 @@
 /* ==========================================================================
    Location — Leaflet overrides + pin
    ========================================================================== */
-[data-theme="dark"] .map-leaflet { filter: invert(0.92) hue-rotate(180deg) saturate(0.7) brightness(0.95); }
+[data-lit="night"] .map-leaflet { filter: invert(0.92) hue-rotate(180deg) saturate(0.7) brightness(0.95); }
 .sunset-pin { position: relative; }
 .sunset-pin__ring {
   position: absolute; top: 50%; left: 50%;
@@ -382,7 +568,7 @@
   width: auto;
   object-fit: contain;
 }
-[data-theme="dark"] .palco-pin-logo { filter: invert(1); }
+[data-lit="night"] .palco-pin-logo { filter: invert(1); }
 .palco-popup-logo {
   height: 1.5rem;
   width: auto;
