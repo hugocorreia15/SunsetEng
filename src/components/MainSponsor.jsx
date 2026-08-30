@@ -1,4 +1,4 @@
-export default function MainSponsor({ tier, soon, lang }) {
+export default function MainSponsor({ tier, presentedBy }) {
   return (
     <div className="relative overflow-hidden border border-[color:var(--line-strong)]">
       <div
@@ -16,7 +16,7 @@ export default function MainSponsor({ tier, soon, lang }) {
       <div className="relative grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center px-8 md:px-12 py-10 md:py-14">
         <div className="flex flex-col gap-3 md:pr-10 md:border-r md:border-[color:var(--line)]">
           <div className="font-mono text-[0.7rem] tracking-[0.25em] uppercase opacity-70">
-            {lang === "pt" ? "Apresentado por" : "Presented by"}
+            {presentedBy}
           </div>
           <div className="font-display text-[clamp(1.8rem,3vw,2.6rem)] leading-none">{tier.name}</div>
           <div className="font-mono text-[0.7rem] tracking-[0.2em] uppercase opacity-60 mt-1">

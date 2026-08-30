@@ -1,33 +1,67 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import SectionHead from "./SectionHead.jsx";
 
 const badgeCls = "absolute top-3 left-3 z-[3] font-mono text-[0.65rem] tracking-[0.15em] uppercase bg-[color:var(--fg)] text-[color:var(--bg)] px-[0.6rem] py-[0.3rem]";
 const metaCls = "absolute bottom-3 right-3 z-[3] font-mono text-[0.65rem] tracking-[0.15em] uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]";
+const thumbCls = "w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]";
+const ctrlCls = "flex items-center justify-center border border-white/40 text-white font-mono hover:bg-white hover:text-black transition-colors";
 
 export default function Gallery({ t }) {
   const [active, setActive] = useState(null);
   const items = t.gallery.items;
+  const isOpen = active !== null;
+
+  const dialogRef = useRef(null);
+  const triggerRef = useRef(null);
 
   const close = useCallback(() => setActive(null), []);
   const next = useCallback(() => setActive((i) => (i === null ? null : (i + 1) % items.length)), [items.length]);
   const prev = useCallback(() => setActive((i) => (i === null ? null : (i - 1 + items.length) % items.length)), [items.length]);
 
+  const openAt = (i, event) => {
+    triggerRef.current = event.currentTarget;
+    setActive(i);
+  };
+
+  /* Open/close lifecycle only — keyed on `isOpen` rather than `active` so that
+     stepping between images does not steal focus back to the dialog. */
   useEffect(() => {
-    if (active === null) return;
-    const onKey = (e) => {
-      if (e.key === "Escape") close();
-      else if (e.key === "ArrowRight") next();
-      else if (e.key === "ArrowLeft") prev();
-    };
+    if (!isOpen) return;
+    const restoreTo = triggerRef.current;
+    dialogRef.current?.focus();
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
+      restoreTo?.focus();
     };
-  }, [active, close, next, prev]);
+  }, [isOpen]);
 
-  const current = active !== null ? items[active] : null;
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") return close();
+      if (e.key === "ArrowRight") return next();
+      if (e.key === "ArrowLeft") return prev();
+      if (e.key !== "Tab") return;
+
+      // Keep Tab inside the dialog rather than letting it walk the page behind.
+      const focusable = dialogRef.current?.querySelectorAll("button, [href]");
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, close, next, prev]);
+
+  const current = isOpen ? items[active] : null;
 
   return (
     <section className="py-24 relative bg-[color:var(--bg-2)]" id="gallery" data-screen-label="Gallery">
@@ -37,28 +71,19 @@ export default function Gallery({ t }) {
           {items.map((item, i) => (
             <button
               type="button"
-              onClick={() => setActive(i)}
+              onClick={(e) => openAt(i, e)}
               className={`relative overflow-hidden cursor-pointer bg-black gallery-item--${item.type} group focus:outline-none`}
-              key={i}
+              key={item.src}
             >
               <div className={badgeCls}>{item.type === "drone" ? "▶ VIDEO" : "PHOTO"}</div>
-              {item.type === "drone" ? (
-                <video
-                  src={item.src}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                />
-              ) : (
-                <img
-                  src={item.src}
-                  alt={item.label}
-                  loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-              )}
+              {/* The video itself is only fetched once the lightbox opens. */}
+              <img
+                src={item.type === "drone" ? item.poster : item.src}
+                alt={item.label}
+                loading="lazy"
+                decoding="async"
+                className={thumbCls}
+              />
               <div className={metaCls}>{item.meta}</div>
             </button>
           ))}
@@ -67,16 +92,19 @@ export default function Gallery({ t }) {
 
       {current && (
         <div
-          className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 md:p-12"
+          ref={dialogRef}
+          tabIndex={-1}
+          className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 md:p-12 focus:outline-none"
           onClick={close}
           role="dialog"
           aria-modal="true"
+          aria-label={current.label}
         >
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); close(); }}
             aria-label="Close"
-            className="absolute top-4 right-4 z-[3] w-11 h-11 flex items-center justify-center border border-white/40 text-white font-mono hover:bg-white hover:text-black transition-colors"
+            className={`${ctrlCls} absolute top-4 right-4 z-[3] w-11 h-11`}
           >
             ✕
           </button>
@@ -85,7 +113,7 @@ export default function Gallery({ t }) {
             type="button"
             onClick={(e) => { e.stopPropagation(); prev(); }}
             aria-label="Previous"
-            className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center border border-white/40 text-white font-mono hover:bg-white hover:text-black transition-colors"
+            className={`${ctrlCls} hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12`}
           >
             ←
           </button>
@@ -93,7 +121,7 @@ export default function Gallery({ t }) {
             type="button"
             onClick={(e) => { e.stopPropagation(); next(); }}
             aria-label="Next"
-            className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center border border-white/40 text-white font-mono hover:bg-white hover:text-black transition-colors"
+            className={`${ctrlCls} hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12`}
           >
             →
           </button>
@@ -105,6 +133,7 @@ export default function Gallery({ t }) {
             {current.type === "drone" ? (
               <video
                 src={current.src}
+                poster={current.poster}
                 className="max-w-full max-h-[80vh] object-contain"
                 autoPlay
                 controls

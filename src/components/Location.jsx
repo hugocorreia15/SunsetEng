@@ -15,9 +15,9 @@ const infoBlock = "pb-6 border-b border-[color:var(--line)]";
 const infoValue = "font-display text-[clamp(1.4rem,2.5vw,2rem)] leading-[1.05] mt-2";
 const infoSub = "block font-mono text-[0.75rem] tracking-[0.15em] uppercase opacity-60 mt-2";
 
-export default function Location({ t, lang }) {
+export default function Location({ t }) {
   return (
-    <section className="py-4for relative" id="location" data-screen-label="Location">
+    <section className="py-24 relative" id="location" data-screen-label="Location">
       <div className="container-x">
         <SectionHead num={t.location.num} title={t.location.title} meta={t.location.meta} />
 
@@ -50,10 +50,12 @@ export default function Location({ t, lang }) {
                 className="map-leaflet h-full w-full"
                 attributionControl={false}
               >
+                {/* CARTO's basemaps now watermark every tile with "API KEY
+                    REQUIRED", so this uses OSM's keyless tiles instead. Their
+                    licence requires the attribution rendered in the bar below. */}
                 <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                  subdomains={["a", "b", "c", "d"]}
-                  maxZoom={20}
+                  url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  maxZoom={19}
                 />
                 <CircleMarker
                   center={VENUE_COORDS}
@@ -71,7 +73,17 @@ export default function Location({ t, lang }) {
                 </Marker>
               </MapContainer>
               <div className="absolute bottom-0 left-0 right-0 z-[400] flex justify-between items-center px-4 py-3 bg-[color:var(--bg)] border-t border-[color:var(--line-strong)]">
-                <div className="font-mono text-[0.7rem] tracking-[0.15em] uppercase opacity-70">40.6317° N · 8.6604° W</div>
+                <div className="font-mono text-[0.7rem] tracking-[0.15em] uppercase opacity-70">
+                  40.6317° N · 8.6604° W
+                  <a
+                    href="https://www.openstreetmap.org/copyright"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ml-3 normal-case tracking-normal opacity-70 hover:opacity-100 underline decoration-dotted"
+                  >
+                    © OpenStreetMap
+                  </a>
+                </div>
                 <a href="https://maps.app.goo.gl/nLxLLaXMcupUop4J8" target="_blank" rel="noreferrer" className="font-mono text-[0.7rem] tracking-[0.15em] uppercase hover:text-[color:var(--accent)] transition-colors">
                   Google Maps →
                 </a>

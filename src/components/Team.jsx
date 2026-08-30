@@ -8,15 +8,13 @@ const memberRole = "font-mono text-[0.65rem] tracking-[0.2em] uppercase opacity-
 const memberName = "member__name font-display text-[1.15rem] leading-[1.1] tracking-[0.02em] uppercase mb-2";
 const memberNucleo = "font-mono text-[0.7rem] tracking-[0.1em] opacity-70";
 
-export default function Team({ t, lang }) {
+export default function Team({ t }) {
   const [filter, setFilter] = useState("all");
   const [expanded, setExpanded] = useState(false);
   const { strategic, operational } = TEAM_DATA;
 
   const filterMember = (m) => filter === "all" || m[1] === filter;
-  const expandLabel = expanded
-    ? (lang === "pt" ? "Mostrar menos" : "Show less")
-    : (lang === "pt" ? "Ver equipa completa" : "View full team");
+  const expandLabel = expanded ? t.team.show_less : t.team.show_more;
 
   return (
     <section className="pt-12 pb-24 relative" id="team" data-screen-label="Team">
@@ -35,16 +33,15 @@ export default function Team({ t, lang }) {
         </div>
 
         <div className={`relative ${expanded ? "" : "max-h-[720px] lg:max-h-[900px] overflow-hidden"}`}>
-          <Group title={lang === "pt" ? "Parte Estratégica" : "Strategic"}
-                 count={`08 · ${lang === "pt" ? "Coordenação + Financeiro" : "Coordination + Finance"}`}>
-            {strategic.map((g, gi) => (
-              <div key={gi} className="mb-8">
+          <Group title={t.team.strategic_title} count={t.team.strategic_meta}>
+            {strategic.map((g) => (
+              <div key={g.group} className="mb-8">
                 <div className="font-mono text-[0.75rem] tracking-[0.2em] opacity-60 mb-4 uppercase">
                   {g.group} · {g.members.filter(filterMember).length}/{g.members.length}
                 </div>
                 <div className="team__grid grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
-                  {g.members.filter(filterMember).map((m, mi) => (
-                    <div className={memberCls} key={mi}>
+                  {g.members.filter(filterMember).map((m) => (
+                    <div className={memberCls} key={m[0]}>
                       <div className={memberRole}>{g.group}</div>
                       <div className={memberName}>{m[0]}</div>
                       <div className={memberNucleo}>{m[1]}</div>
@@ -55,13 +52,12 @@ export default function Team({ t, lang }) {
             ))}
           </Group>
 
-          <Group title={lang === "pt" ? "Parte Operacional" : "Operational"}
-                 count={`30 · ${lang === "pt" ? "Logística · Comunicação · Relações" : "Logistics · Comms · Relations"}`}>
-            {operational.map((g, gi) => {
+          <Group title={t.team.operational_title} count={t.team.operational_meta}>
+            {operational.map((g) => {
               const visible = g.members.filter(filterMember);
               if (!visible.length) return null;
               return (
-                <div key={gi} className="mb-10">
+                <div key={g.group} className="mb-10">
                   <div className="flex justify-between items-baseline mb-4">
                     <div className="font-display text-[1.3rem] uppercase tracking-[0.04em]">{g.group}</div>
                     <div className="font-mono text-[0.7rem] tracking-[0.2em] opacity-50 uppercase">
@@ -69,9 +65,9 @@ export default function Team({ t, lang }) {
                     </div>
                   </div>
                   <div className="team__grid grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
-                    {visible.map((m, mi) => (
-                      <div className={memberCls} key={mi}>
-                        <div className={memberRole}>{m[2] || (lang === "pt" ? "Membro" : "Member")}</div>
+                    {visible.map((m) => (
+                      <div className={memberCls} key={m[0]}>
+                        <div className={memberRole}>{m[2] || t.team.member}</div>
                         <div className={memberName}>{m[0]}</div>
                         <div className={memberNucleo}>{m[1]}</div>
                       </div>

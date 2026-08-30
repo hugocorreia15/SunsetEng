@@ -160,33 +160,6 @@
   box-shadow: 4px 4px 0 var(--color-ink);
 }
 
-/* Striped placeholder (repeating-gradient can't be a simple utility) */
-.stripe-placeholder {
-  position: relative;
-  background: repeating-linear-gradient(45deg, var(--bg-2), var(--bg-2) 10px, var(--bg) 10px, var(--bg) 20px);
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-  border: 1px solid var(--line-strong);
-}
-.stripe-placeholder::after {
-  content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent 40%, rgba(255,122,26,0.08) 60%, transparent 80%);
-  pointer-events: none;
-}
-.stripe-placeholder__label {
-  position: relative; z-index: 2;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--fg);
-  background: var(--bg);
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--line-strong);
-  text-align: center;
-}
-
 /* ==========================================================================
    Hero
    ========================================================================== */
@@ -195,7 +168,7 @@
   left: 50%;
   bottom: -5%;
   width: 80vmin; height: 80vmin;
-  transform: translateX(-50%);
+  transform: translate(calc(-50% + var(--px, 0px)), var(--py, 0px));
   border-radius: 50%;
   background: radial-gradient(circle at center,
     var(--sun-yellow) 0%,
@@ -209,8 +182,8 @@
   animation: sunPulse 8s ease-in-out infinite;
 }
 @keyframes sunPulse {
-  0%, 100% { transform: translateX(-50%) scale(1); }
-  50%      { transform: translateX(-50%) scale(1.04); }
+  0%, 100% { transform: translate(calc(-50% + var(--px, 0px)), var(--py, 0px)) scale(1); }
+  50%      { transform: translate(calc(-50% + var(--px, 0px)), var(--py, 0px)) scale(1.04); }
 }
 
 .hero__horizon {
@@ -279,7 +252,10 @@
   color: var(--sun-coral);
   opacity: 0.7;
 }
-@keyframes gearSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes gearSpin {
+  from { transform: translate(var(--px, 0px), var(--py, 0px)) rotate(0deg); }
+  to   { transform: translate(var(--px, 0px), var(--py, 0px)) rotate(360deg); }
+}
 
 /* ==========================================================================
    About — drop cap + gradient text clipping
@@ -343,38 +319,12 @@
 }
 
 /* ==========================================================================
-   Sponsors — carousels + tier gradient
+   Sponsors — logo theme swap
    ========================================================================== */
-.sponsor-carousel {
-  overflow: hidden;
-  padding: 1.5rem 0;
-  background: var(--bg-2);
-  position: relative;
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-}
-.sponsor-carousel__track {
-  display: flex;
-  gap: 1.5rem;
-  animation: sponsorScroll var(--dur, 30s) linear infinite;
-  width: max-content;
-}
-.sponsor-tier:hover .sponsor-carousel__track { animation-play-state: paused; }
-@keyframes sponsorScroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-.sponsor-tier--main-head {
-  background: linear-gradient(135deg, var(--sun-coral), var(--sun-amber));
-  color: #140a16;
-  border-bottom-color: rgba(20,10,22,0.2) !important;
-}
-
 /* Sponsor logo theme swap (dual-asset) */
 .sponsor-logo--dark { display: none; }
 [data-theme="dark"] .sponsor-logo--light { display: none; }
 [data-theme="dark"] .sponsor-logo--dark  { display: block; }
-
 
 /* ==========================================================================
    Team — gradient hover + variants
@@ -390,28 +340,6 @@
 .member:hover::before { opacity: 1; }
 .member:hover { color: #140a16; border-color: transparent; transform: translateY(-4px); }
 .member > * { position: relative; z-index: 1; }
-
-.nucleo-badge { transition: all 0.3s; }
-.nucleo-badge:hover { background: var(--fg); color: var(--bg); transform: rotate(-2deg) scale(1.05); }
-
-[data-team-variant="list"] .team__grid {
-  display: flex !important;
-  flex-direction: column;
-  gap: 0 !important;
-}
-[data-team-variant="list"] .member {
-  display: grid;
-  grid-template-columns: 120px 1fr auto;
-  align-items: center;
-  gap: 2rem;
-  padding: 1rem 1.2rem;
-}
-[data-team-variant="dense"] .team__grid {
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
-  gap: 0.4rem !important;
-}
-[data-team-variant="dense"] .member { padding: 0.8rem; }
-[data-team-variant="dense"] .member__name { font-size: 0.95rem; }
 
 /* ==========================================================================
    Location — Leaflet overrides + pin
@@ -476,70 +404,6 @@
 .leaflet-popup-content strong { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.02em; text-transform: uppercase; }
 
 /* ==========================================================================
-   Venue map — many absolute zones + stylised terrain
-   ========================================================================== */
-.venue-map__canvas {
-  position: relative;
-  aspect-ratio: 5 / 2;
-  width: 100%;
-  overflow: hidden;
-  background: #4a6e3e;
-}
-.venue-map__terrain {
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse at 30% 40%, #5a8048 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 70%, #6b8a4e 0%, transparent 60%),
-    repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 3px, transparent 3px 7px),
-    linear-gradient(180deg, #4a6e3e, #3d5c33);
-}
-.venue-map__terrain::after {
-  content: "";
-  position: absolute; left: 0; right: 0; bottom: 0;
-  height: 20%;
-  background: linear-gradient(180deg, transparent, rgba(180,180,180,0.25));
-  border-top: 1px solid rgba(255,255,255,0.2);
-}
-.venue-map__building {
-  position: absolute; left: 0; top: 15%;
-  width: 18%; height: 65%;
-  background: linear-gradient(180deg, #cfcfcf, #9a9a9a);
-  border: 1px solid rgba(0,0,0,0.3);
-  display: flex; align-items: center; justify-content: center;
-}
-.venue-map__building-label {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: #333;
-  text-transform: uppercase;
-  transform: rotate(-90deg);
-  white-space: nowrap;
-}
-.zone {
-  position: absolute;
-  border: 1px solid rgba(0,0,0,0.4);
-  box-shadow: 0 2px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.zone:hover { transform: scale(1.08) translateZ(0); z-index: 5; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-.zone--featured { border: 2px solid rgba(255,255,255,0.6); box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.4); }
-.zone__stage-label {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  color: #fff;
-  letter-spacing: 0.15em;
-  white-space: nowrap;
-}
-@media (max-width: 700px) {
-  .venue-map__canvas { aspect-ratio: 4 / 3; }
-  .zone__stage-label { font-size: 0.6rem; }
-}
-
-/* ==========================================================================
    Marquee
    ========================================================================== */
 .marquee__track {
@@ -591,14 +455,13 @@
 /* ==========================================================================
    Reveal on scroll
    ========================================================================== */
-.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s, transform 0.8s; }
-.reveal.is-visible { opacity: 1; transform: translateY(0); }
-
-/* ==========================================================================
-   TweaksPanel — box-shadow depends on theme
-   ========================================================================== */
-.tweaks-panel { box-shadow: 8px 8px 0 var(--color-ink); }
-[data-theme="dark"] .tweaks-panel { box-shadow: 8px 8px 0 var(--sun-yellow); }
+/* Scoped to .js-reveal (set by main.jsx) so that if the script never runs the
+   content stays visible instead of a blank page of opacity-0 sections. */
+.js-reveal .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s, transform 0.8s; }
+.js-reveal .reveal.is-visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
+}
 
 /* Helper class to read dynamic tokens as Tailwind-like utilities */
 @utility bg-surface  { background-color: var(--bg); }

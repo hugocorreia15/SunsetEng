@@ -2,7 +2,7 @@ import SponsorCarousel from "./SponsorCarousel.jsx";
 import MainSponsor from "./MainSponsor.jsx";
 import SectionHead from "./SectionHead.jsx";
 
-export default function Sponsors({ t, lang, onContact }) {
+export default function Sponsors({ t }) {
   const mainTier = t.sponsors.tiers.find((x) => x.kind === "main");
   const otherTiers = t.sponsors.tiers.filter((x) => x.kind !== "main");
 
@@ -13,13 +13,19 @@ export default function Sponsors({ t, lang, onContact }) {
 
         {mainTier && (
           <div className="reveal mb-12">
-            <MainSponsor tier={mainTier} soon={t.sponsors.soon} lang={lang} />
+            <MainSponsor tier={mainTier} presentedBy={t.sponsors.presented_by} />
           </div>
         )}
 
         <div className="reveal flex flex-col gap-6 mb-14">
-          {otherTiers.map((tier, i) => (
-            <SponsorCarousel key={i} tier={tier} soon={t.sponsors.soon} />
+          {otherTiers.map((tier) => (
+            <SponsorCarousel
+              key={tier.kind}
+              tier={tier}
+              soon={t.sponsors.soon}
+              slotOne={t.sponsors.slot_one}
+              slotMany={t.sponsors.slot_many}
+            />
           ))}
         </div>
 

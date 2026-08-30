@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import SunFlames from "./SunFlames.jsx";
 import GearSvg from "./GearSvg.jsx";
 
+const COUNTDOWN_TARGET = new Date("2026-05-13T17:00:00+01:00").getTime();
+
 function useCountdown(targetDate) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -16,25 +18,44 @@ function useCountdown(targetDate) {
   return { days, hours, mins, secs };
 }
 
-export default function Hero({ t, heroVariant }) {
-  const target = new Date("2026-05-13T17:00:00+01:00").getTime();
-  const cd = useCountdown(target);
+/* The sun and gears carry looping CSS animations on `transform`, and animations
+   outrank inline styles in the cascade — so the parallax offset is published as
+   custom properties that the keyframes compose in, never written to `transform`. */
+function setParallax(el, x, y) {
+  if (!el) return;
+  el.style.setProperty("--px", `${x}px`);
+  el.style.setProperty("--py", `${y}px`);
+}
+
+export default function Hero({ t }) {
+  const cd = useCountdown(COUNTDOWN_TARGET);
   const pad = (n) => String(n).padStart(2, "0");
 
   const sunRef = useRef(null);
   const gearRef = useRef(null);
   useEffect(() => {
-    const onMove = (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 2;
-      const y = (e.clientY / window.innerHeight - 0.5) * 2;
-      if (sunRef.current) sunRef.current.style.transform = `translateX(calc(-50% + ${x * 20}px)) translateY(${y * 20}px)`;
-      if (gearRef.current) gearRef.current.style.transform = `translate(${x * -15}px, ${y * -10}px) rotate(var(--gear-rot, 0deg))`;
-    };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
-  }, []);
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!finePointer.matches || reducedMotion.matches) return;
 
-  const isVariantCenter = heroVariant === "center";
+    let frame = 0;
+    const onMove = (e) => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const x = (e.clientX / window.innerWidth - 0.5) * 2;
+        const y = (e.clientY / window.innerHeight - 0.5) * 2;
+        setParallax(sunRef.current, x * 20, y * 20);
+        setParallax(gearRef.current, x * -15, y * -10);
+      });
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
     <section
@@ -61,20 +82,18 @@ export default function Hero({ t, heroVariant }) {
         <div className="flex justify-between items-start gap-8 flex-wrap">
           <div>
             <div className="eyebrow mb-4 opacity-80">{t.hero.edition}</div>
-            <h1 className="hero__title" style={{ textAlign: isVariantCenter ? "center" : "left" }}>
-              SUNSET<br/>D'ENGE—<br/>NHARIAS
+            <h1 className="hero__title text-left">
+              SUNSET<br/>D&apos;ENGE—<br/>NHARIAS
             </h1>
           </div>
-          {!isVariantCenter && (
-            <div className="max-w-[320px] text-right mt-2">
-              <div className="font-display text-[clamp(1.2rem,2vw,1.8rem)] tracking-[0.15em] opacity-80">
-                {t.hero.tagline_top}
-              </div>
-              <div className="font-display text-[clamp(1.2rem,2vw,1.8rem)] tracking-[0.15em] text-[color:var(--sun-coral)]">
-                {t.hero.tagline_bottom}
-              </div>
+          <div className="max-w-[320px] text-right mt-2">
+            <div className="font-display text-[clamp(1.2rem,2vw,1.8rem)] tracking-[0.15em] opacity-80">
+              {t.hero.tagline_top}
             </div>
-          )}
+            <div className="font-display text-[clamp(1.2rem,2vw,1.8rem)] tracking-[0.15em] text-[color:var(--sun-coral)]">
+              {t.hero.tagline_bottom}
+            </div>
+          </div>
         </div>
 
         <div

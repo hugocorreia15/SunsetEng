@@ -12,13 +12,35 @@ import Team from "./components/Team.jsx";
 import Location from "./components/Location.jsx";
 import Footer from "./components/Footer.jsx";
 
-export default function App() {
-  const [lang, setLang] = useState(() => localStorage.getItem("sunset-lang") || "pt");
-  const [theme, setTheme] = useState(() => localStorage.getItem("sunset-theme") || "light");
+/* Storage access throws outright in some privacy modes, so neither read nor
+   write is allowed to take the page down with it. */
+const readStored = (key, fallback) => {
+  try {
+    return localStorage.getItem(key) || fallback;
+  } catch {
+    return fallback;
+  }
+};
 
-  useEffect(() => { localStorage.setItem("sunset-lang", lang); }, [lang]);
+const writeStored = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* preference simply will not persist */
+  }
+};
+
+export default function App() {
+  const [lang, setLang] = useState(() => readStored("sunset-lang", "pt"));
+  const [theme, setTheme] = useState(() => readStored("sunset-theme", "light"));
+
   useEffect(() => {
-    localStorage.setItem("sunset-theme", theme);
+    writeStored("sunset-lang", lang);
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
+    writeStored("sunset-theme", theme);
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
@@ -40,10 +62,10 @@ export default function App() {
       <About t={t} />
       <Lineup t={t} />
       <Gallery t={t} />
-      <Sponsors t={t} lang={lang} onContact={() => { window.location.href = "mailto:parcerias@sunsetua.pt"; }} />
-      <Team t={t} lang={lang} />
-      <Location t={t} lang={lang} />
-      <Footer t={t} lang={lang} />
+      <Sponsors t={t} />
+      <Team t={t} />
+      <Location t={t} />
+      <Footer t={t} />
       <Analytics />
     </>
   );

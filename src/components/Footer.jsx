@@ -4,7 +4,7 @@ const colHead = "font-display text-[0.95rem] tracking-[0.1em] uppercase mb-4 opa
 const colList = "flex flex-col gap-2 font-mono text-[0.85rem] tracking-[0.05em]";
 const colLink = "opacity-80 hover:opacity-100 transition-opacity";
 
-export default function Footer({ t, lang }) {
+export default function Footer({ t }) {
   return (
     <footer className="pt-24 pb-12 mt-24 bg-[color:var(--fg)] text-[color:var(--bg)]" data-screen-label="Footer">
       <div className="container-x">
@@ -14,7 +14,7 @@ export default function Footer({ t, lang }) {
         <div className="footer__big">SUNSET 26</div>
 
         <div className="mb-16">
-          <div className={colHead}>{lang === "pt" ? "Núcleos" : "Student bodies"}</div>
+          <div className={colHead}>{t.footer.nucleos}</div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-4">
             {NUCLEOS.map((n) => (
               <div key={n} className="aspect-square flex items-center justify-center p-4 transition-colors hover:bg-[rgba(255,238,221,0.08)]">
@@ -31,7 +31,7 @@ export default function Footer({ t, lang }) {
               Engenharias<br/>Universidade de Aveiro
             </div>
             <div className="font-mono text-[0.75rem] opacity-60 mt-2 tracking-[0.1em]">
-              {lang === "pt" ? "10 núcleos · 30 organizadores" : "10 bodies · 30 organizers"}
+              {t.footer.org_meta}
             </div>
           </div>
           <div>
@@ -44,7 +44,16 @@ export default function Footer({ t, lang }) {
           <div>
             <h4 className={colHead}>{t.footer.social}</h4>
             <ul className={colList}>
-              <li><a className={colLink} href="#">Instagram →</a></li>
+              <li>
+                <a
+                  className={colLink}
+                  href="https://www.instagram.com/sunsetdengenharias/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  @sunsetdengenharias →
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -54,7 +63,7 @@ export default function Footer({ t, lang }) {
             <span>{t.footer.privacy}</span>
             <span className="opacity-50">·</span>
             <a className={colLink} href="https://github.com/hugocorreia15" target="_blank" rel="noreferrer">
-              {lang === "pt" ? "Feito por" : "Made by"} @hugocorreia15 →
+              {t.footer.credit} @hugocorreia15 →
             </a>
           </div>
         </div>

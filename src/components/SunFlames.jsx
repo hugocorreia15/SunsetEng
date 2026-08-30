@@ -1,103 +1,112 @@
 import { useEffect, useRef } from "react";
-import p5 from "p5";
 
 const RAY_COUNT = 36;
+const FALLBACK_COLOR = "#ffb020";
+
+const readRayColor = () =>
+  getComputedStyle(document.documentElement).getPropertyValue("--sun-amber").trim() || FALLBACK_COLOR;
 
 export default function SunFlames() {
   const hostRef = useRef(null);
 
   useEffect(() => {
-    if (!hostRef.current) return;
+    const host = hostRef.current;
+    if (!host) return;
 
-    const sketch = (p) => {
-      let w = 0, h = 0, cx = 0, cy = 0, sunR = 0, outerR = 0;
-      let strokeColor = "#ffb020";
+    let cancelled = false;
+    let instance = null;
+    let observer = null;
+    let onResize = null;
 
-      const readColor = () => {
-        const s = getComputedStyle(document.documentElement);
-        strokeColor = s.getPropertyValue("--sun-amber").trim() || "#ffb020";
-      };
+    /* p5 is ~950 KB and drives nothing but this decorative sketch, so it is
+       loaded as its own chunk once the page has already rendered. */
+    import("p5").then(({ default: p5 }) => {
+      if (cancelled) return;
 
-      const resize = () => {
-        const host = hostRef.current;
-        if (!host) return;
-        const rect = host.getBoundingClientRect();
-        w = rect.width; h = rect.height;
-        cx = w / 2; cy = h / 2;
-        sunR = Math.min(w, h) * 0.30;
-        outerR = Math.min(w, h) * 0.5;
-        p.resizeCanvas(w, h);
-      };
+      /* Held in an object the sketch closes over, so a theme or palette change
+         actually reaches the running draw loop. */
+      const rayColor = { value: readRayColor() };
 
-      p.setup = () => {
-        readColor();
-        const rect = hostRef.current.getBoundingClientRect();
-        w = rect.width; h = rect.height;
-        cx = w / 2; cy = h / 2;
-        sunR = Math.min(w, h) * 0.30;
-        outerR = Math.min(w, h) * 0.5;
-        const c = p.createCanvas(w, h);
-        c.elt.style.width = "100%";
-        c.elt.style.height = "100%";
-        p.pixelDensity(Math.min(window.devicePixelRatio || 1, 2));
-        window.addEventListener("resize", resize);
-      };
+      const sketch = (p) => {
+        let w = 0, h = 0, cx = 0, cy = 0, sunR = 0, outerR = 0;
 
-      p.draw = () => {
-        p.clear();
-        const t = p.frameCount * 0.012;
-        const col = p.color(strokeColor);
-        const maxLen = outerR - sunR;
+        const measure = () => {
+          const rect = host.getBoundingClientRect();
+          w = rect.width; h = rect.height;
+          cx = w / 2; cy = h / 2;
+          sunR = Math.min(w, h) * 0.30;
+          outerR = Math.min(w, h) * 0.5;
+        };
 
-        for (let i = 0; i < RAY_COUNT; i++) {
-          const baseAng = (i / RAY_COUNT) * p.TWO_PI;
-          const n = p.noise(i * 0.37, t);
-          const pulse = 0.45 + n * 0.75;
-          const len = maxLen * pulse;
-          const thick = i % 2 === 0 ? 1.6 : 0.9;
-          const alpha = (i % 2 === 0 ? 210 : 130) * (0.55 + n * 0.45);
+        p.setup = () => {
+          measure();
+          const c = p.createCanvas(w, h);
+          c.elt.style.width = "100%";
+          c.elt.style.height = "100%";
+          p.pixelDensity(Math.min(window.devicePixelRatio || 1, 2));
+        };
 
-          const c1 = p.color(strokeColor); c1.setAlpha(alpha);
-          p.stroke(c1);
-          p.strokeWeight(thick);
+        onResize = () => {
+          measure();
+          p.resizeCanvas(w, h);
+        };
+        window.addEventListener("resize", onResize, { passive: true });
+
+        p.draw = () => {
+          p.clear();
+          const t = p.frameCount * 0.012;
+          const maxLen = outerR - sunR;
+          const col = p.color(rayColor.value);
           p.strokeCap(p.SQUARE);
 
-          const x1 = cx + Math.cos(baseAng) * sunR;
-          const y1 = cy + Math.sin(baseAng) * sunR;
-          const x2 = cx + Math.cos(baseAng) * (sunR + len);
-          const y2 = cy + Math.sin(baseAng) * (sunR + len);
-          p.line(x1, y1, x2, y2);
-        }
+          for (let i = 0; i < RAY_COUNT; i++) {
+            const baseAng = (i / RAY_COUNT) * p.TWO_PI;
+            const n = p.noise(i * 0.37, t);
+            const len = maxLen * (0.45 + n * 0.75);
 
-        for (let i = 0; i < RAY_COUNT; i++) {
-          const baseAng = ((i + 0.5) / RAY_COUNT) * p.TWO_PI;
-          const n = p.noise(i * 0.5 + 100, t * 1.4);
-          const pulse = 0.25 + n * 0.55;
-          const len = maxLen * pulse;
-          const c2 = p.color(strokeColor); c2.setAlpha(70 * (0.4 + n * 0.6));
-          p.stroke(c2);
-          p.strokeWeight(0.5);
-          const x1 = cx + Math.cos(baseAng) * sunR * 1.05;
-          const y1 = cy + Math.sin(baseAng) * sunR * 1.05;
-          const x2 = cx + Math.cos(baseAng) * (sunR + len);
-          const y2 = cy + Math.sin(baseAng) * (sunR + len);
-          p.line(x1, y1, x2, y2);
-        }
+            col.setAlpha((i % 2 === 0 ? 210 : 130) * (0.55 + n * 0.45));
+            p.stroke(col);
+            p.strokeWeight(i % 2 === 0 ? 1.6 : 0.9);
+            p.line(
+              cx + Math.cos(baseAng) * sunR,
+              cy + Math.sin(baseAng) * sunR,
+              cx + Math.cos(baseAng) * (sunR + len),
+              cy + Math.sin(baseAng) * (sunR + len),
+            );
+          }
+
+          for (let i = 0; i < RAY_COUNT; i++) {
+            const baseAng = ((i + 0.5) / RAY_COUNT) * p.TWO_PI;
+            const n = p.noise(i * 0.5 + 100, t * 1.4);
+            const len = maxLen * (0.25 + n * 0.55);
+
+            col.setAlpha(70 * (0.4 + n * 0.6));
+            p.stroke(col);
+            p.strokeWeight(0.5);
+            p.line(
+              cx + Math.cos(baseAng) * sunR * 1.05,
+              cy + Math.sin(baseAng) * sunR * 1.05,
+              cx + Math.cos(baseAng) * (sunR + len),
+              cy + Math.sin(baseAng) * (sunR + len),
+            );
+          }
+        };
       };
-    };
 
-    const inst = new p5(sketch, hostRef.current);
+      instance = new p5(sketch, host);
 
-    const observer = new MutationObserver(() => {
-      const s = getComputedStyle(document.documentElement);
-      const next = s.getPropertyValue("--sun-amber").trim();
-      if (inst && next) inst.strokeColor = next;
+      observer = new MutationObserver(() => { rayColor.value = readRayColor(); });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme", "data-palette"],
+      });
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-palette"] });
 
     return () => {
-      observer.disconnect();
-      inst.remove();
+      cancelled = true;
+      if (observer) observer.disconnect();
+      if (onResize) window.removeEventListener("resize", onResize);
+      if (instance) instance.remove();
     };
   }, []);
 

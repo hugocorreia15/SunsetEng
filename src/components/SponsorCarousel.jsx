@@ -1,4 +1,4 @@
-export default function SponsorCarousel({ tier, soon }) {
+export default function SponsorCarousel({ tier, soon, slotOne, slotMany }) {
   const filled = tier.sponsors?.length || 0;
 
   const renderCard = (s, key, ariaHidden = false) => {
@@ -67,7 +67,7 @@ export default function SponsorCarousel({ tier, soon }) {
         <div className="flex items-center justify-center px-6 py-10 gap-3">
           <span className="font-display text-[clamp(1.2rem,2.4vw,1.8rem)] uppercase tracking-[0.08em] opacity-80">{soon}</span>
           <span className="font-mono text-[0.65rem] tracking-[0.2em] uppercase opacity-40">
-            · {tier.slots} {tier.slots === 1 ? "vaga" : "vagas"}
+            · {tier.slots} {tier.slots === 1 ? slotOne : slotMany}
           </span>
         </div>
       )}

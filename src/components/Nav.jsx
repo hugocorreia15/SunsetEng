@@ -6,12 +6,15 @@ export default function Nav({ t, lang, setLang, theme, setTheme }) {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* Only touches the scroll lock while the menu is actually open, so it cannot
+     clear a lock the gallery lightbox is holding. */
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+    if (!menuOpen) return;
+    document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
@@ -72,7 +75,7 @@ export default function Nav({ t, lang, setLang, theme, setTheme }) {
       />
 
       <aside
-        className={`lg:hidden fixed top-0 right-0 bottom-0 z-[160] w-[min(80vw,360px)] bg-[color:var(--bg)] border-l border-[color:var(--line-strong)] shadow-2xl transition-transform duration-300 flex flex-col ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`lg:hidden fixed top-0 right-0 bottom-0 z-[160] w-[min(80vw,360px)] bg-[color:var(--bg)] border-l border-[color:var(--line-strong)] shadow-2xl transition-[transform,visibility] duration-300 flex flex-col ${menuOpen ? "translate-x-0 visible" : "translate-x-full invisible"}`}
         aria-hidden={!menuOpen}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)]">
@@ -104,7 +107,7 @@ export default function Nav({ t, lang, setLang, theme, setTheme }) {
         </nav>
 
         <div className="px-6 py-6 border-t border-[color:var(--line)] font-mono text-[0.7rem] tracking-[0.2em] uppercase opacity-60">
-          Sunset D'Engenharias · 2026
+          Sunset D&apos;Engenharias · 2026
         </div>
       </aside>
     </>
