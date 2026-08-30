@@ -186,6 +186,90 @@
   50%      { transform: translate(calc(-50% + var(--px, 0px)), var(--py, 0px)) scale(1.04); }
 }
 
+/* --------------------------------------------------------------------------
+   Scroll-linked sunset
+   The page is named for a sunset, so scrolling performs one: the sun sinks
+   past the horizon, its rays go out, and the horizon line ignites as it
+   passes. Driven entirely by scroll-driven CSS animations — no JS, no scroll
+   listener — and gated behind @supports so unsupported browsers keep exactly
+   the static hero they have today.
+   -------------------------------------------------------------------------- */
+/* The section is a scroll runway; the sky pins inside it for one viewport
+   while the content slides up and away over the held horizon. */
+.hero {
+  position: relative;
+  height: 100vh;
+}
+.hero__sky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.hero__content {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 100vh;
+  z-index: 2;
+  padding-top: 7rem;
+  display: flex;
+  flex-direction: column;
+}
+.hero__content > :last-child { margin-top: auto; }
+
+
+.hero__sun-track { position: absolute; inset: 0; }
+.hero__rays-layer { position: absolute; inset: 0; z-index: 0; }
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero { height: 165vh; }
+    @media (max-width: 700px) { .hero { height: 150vh; } }
+
+    .hero__sun-track {
+      animation: sunSet linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 88vh;
+    }
+    @keyframes sunSet {
+      to { transform: translateY(58vh); }
+    }
+
+    /* The fade rides the wrapper so .hero__rays keeps rayRotate on its own
+       default timeline — one animation, one timeline, per element. */
+    .hero__rays-layer {
+      animation: raysOut linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 2vh 56vh;
+    }
+    @keyframes raysOut {
+      to { opacity: 0; }
+    }
+
+    /* The last light concentrates on the horizon as the sun crosses it. */
+    /* Opaque earth below the horizon — this is what the sun actually sets behind.
+   Without it the sun sinks in front of the ground and never disappears. */
+.hero__ground {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 35%;
+  z-index: 1;
+  background: var(--bg);
+}
+
+.hero__horizon {
+      animation: horizonGlow linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 72vh;
+    }
+    @keyframes horizonGlow {
+      0%   { opacity: 1; filter: none; }
+      55%  { opacity: 1; filter: drop-shadow(0 0 6px var(--sun-amber)); }
+      100% { opacity: 0.45; filter: drop-shadow(0 0 2px var(--sun-deep)); }
+    }
+  }
+}
+
 .hero__horizon {
   position: absolute; left: 0; right: 0; bottom: 35%;
   height: 1px;

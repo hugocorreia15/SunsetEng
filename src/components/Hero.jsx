@@ -58,16 +58,20 @@ export default function Hero({ t }) {
   }, []);
 
   return (
-    <section
-      className="relative min-h-screen pt-28 overflow-hidden flex flex-col"
-      id="top"
-      data-screen-label="Hero"
-    >
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute inset-0" style={{ zIndex: 0 }}>
+    <section className="hero" id="top" data-screen-label="Hero">
+      {/* Sticky, so the horizon holds still while the content scrolls over it.
+          Without this the sun and the horizon scroll away together and no
+          amount of descent reads as a sunset. */}
+      <div className="hero__sky">
+        <div className="hero__rays-layer">
           <div className="hero__rays"><SunFlames /></div>
         </div>
-        <div ref={sunRef} className="hero__sun" />
+        {/* The track carries the scroll-driven descent so the sun itself keeps
+            its own pulse and pointer parallax on an uncontested transform. */}
+        <div className="hero__sun-track">
+          <div ref={sunRef} className="hero__sun" />
+        </div>
+        <div className="hero__ground" />
         <div className="hero__horizon" />
         <div className="hero__stripes" />
         <div ref={gearRef} className="gear gear--hero">
@@ -78,7 +82,7 @@ export default function Hero({ t }) {
         </div>
       </div>
 
-      <div className="relative z-[2] grid grid-cols-1 gap-8 px-[clamp(1rem,4vw,3rem)] py-8 flex-1">
+      <div className="hero__content grid grid-cols-1 gap-8 px-[clamp(1rem,4vw,3rem)] py-8">
         <div className="flex justify-between items-start gap-8 flex-wrap">
           <div>
             <div className="eyebrow mb-4 opacity-80">{t.hero.edition}</div>
