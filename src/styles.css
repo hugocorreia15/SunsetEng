@@ -24,13 +24,24 @@
   --breakpoint-lg: 900px;
 }
 
-/* Dynamic tokens (theme / palette switches) */
+@property --page-bg   { syntax: "<color>"; inherits: true; initial-value: #fff8ef; }
+@property --page-bg-2 { syntax: "<color>"; inherits: true; initial-value: #ffeedd; }
+@property --page-fg   { syntax: "<color>"; inherits: true; initial-value: #140a16; }
+
+/* Dynamic tokens (theme / palette switches).
+   --page-* are the animated ends of the day/night ramp; every other token is
+   derived from them, so the whole document travels with the sun rather than
+   just the hero. */
 :root {
-  --bg: var(--color-paper);
-  --fg: var(--color-ink);
-  --bg-2: var(--color-paper-2);
-  --line: rgba(20, 10, 22, 0.12);
-  --line-strong: rgba(20, 10, 22, 0.5);
+  --page-bg: #fff8ef;
+  --page-bg-2: #ffeedd;
+  --page-fg: #140a16;
+
+  --bg: var(--page-bg);
+  --fg: var(--page-fg);
+  --bg-2: var(--page-bg-2);
+  --line: color-mix(in srgb, var(--page-fg) 13%, transparent);
+  --line-strong: color-mix(in srgb, var(--page-fg) 45%, transparent);
   --accent: var(--color-sun-coral);
   --type-scale: 1;
   --bg-intensity: 1;
@@ -43,12 +54,11 @@
   --sun-night: var(--color-sun-night);
 }
 
+/* The theme toggle now picks which end of the cycle you start at. */
 [data-theme="dark"] {
-  --bg: #0e0710;
-  --fg: #ffeedd;
-  --bg-2: #19101c;
-  --line: rgba(255, 238, 221, 0.12);
-  --line-strong: rgba(255, 238, 221, 0.4);
+  --page-bg: #0e0710;
+  --page-bg-2: #19101c;
+  --page-fg: #ffeedd;
 }
 
 [data-palette="dusk"] {
@@ -96,7 +106,8 @@
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    transition: background 0.4s, color 0.4s;
+    /* No transition here: the day/night ramp drives --bg and --fg directly, and
+       a transition on top of it smears every scroll frame. */
   }
 
   body::before {
@@ -108,7 +119,7 @@
     z-index: 1000;
     mix-blend-mode: multiply;
   }
-  [data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.06; }
+  [data-lit="night"] body::before { mix-blend-mode: screen; opacity: 0.06; }
 
   h1, h2, h3, h4 {
     font-family: var(--font-display);
@@ -196,24 +207,12 @@
    -------------------------------------------------------------------------- */
 /* The section is a scroll runway; the sky pins inside it for one viewport
    while the content slides up and away over the held horizon. */
-@property --hero-bg { syntax: "<color>"; inherits: true; initial-value: #fff8ef; }
-@property --hero-fg { syntax: "<color>"; inherits: true; initial-value: #140a16; }
-
 .hero {
   position: relative;
   height: 100vh;
-
-  /* Everything inside the hero reads these, so the meta panel, countdown,
-     borders and buttons all travel with the sky for free. */
-  --bg: var(--hero-bg);
-  --fg: var(--hero-fg);
-  --line: color-mix(in srgb, var(--hero-fg) 14%, transparent);
-  --line-strong: color-mix(in srgb, var(--hero-fg) 45%, transparent);
-
-  color: var(--fg);
 }
 
-.hero__sky { background: var(--hero-bg); }
+.hero__sky { background: var(--bg); }
 .hero__sky {
   position: sticky;
   top: 0;
@@ -240,28 +239,29 @@
     .hero { height: 165vh; }
     @media (max-width: 700px) { .hero { height: 150vh; } }
 
-    /* Night falls as the sun goes down. The ramp travels through the festival
-       palette — gold, coral, magenta, plum — rather than crossfading paper
-       straight to black, which passes through a dead grey at the midpoint.
-       The text flips over a deliberately short window for the same reason:
-       a slow fade from ink to paper spends its middle at no contrast. */
-    .hero {
+    /* Night falls as the sun goes down — and stays fallen. The animation sits
+       on :root with `both` fill, so every section below the hero holds the
+       night it ended on instead of snapping back to paper. The ramp travels
+       through the festival palette rather than crossfading paper straight to
+       black, which passes through a dead grey at the midpoint; the text flips
+       over a short window for the same reason. */
+    :root {
       animation: nightfall linear both;
       animation-timeline: scroll(root block);
       animation-range: 6vh 92vh;
     }
     @keyframes nightfall {
-      0%   { --hero-bg: #fff8ef; --hero-fg: #140a16; }
-      30%  { --hero-bg: #ffe3c0; --hero-fg: #140a16; }
-      52%  { --hero-bg: #f7a678; --hero-fg: #140a16; }
-      62%  { --hero-bg: #c85f70; --hero-fg: #1a0d14; }
-      70%  { --hero-bg: #8d3560; --hero-fg: #ffeedd; }
-      85%  { --hero-bg: #3d1a3d; --hero-fg: #ffeedd; }
-      100% { --hero-bg: #150a1b; --hero-fg: #ffeedd; }
+      0%   { --page-bg: #fff8ef; --page-bg-2: #ffeedd; --page-fg: #140a16; }
+      30%  { --page-bg: #ffe3c0; --page-bg-2: #ffd7ad; --page-fg: #140a16; }
+      52%  { --page-bg: #f7a678; --page-bg-2: #f0946a; --page-fg: #140a16; }
+      62%  { --page-bg: #c85f70; --page-bg-2: #b85266; --page-fg: #1a0d14; }
+      70%  { --page-bg: #8d3560; --page-bg-2: #7d2d56; --page-fg: #ffeedd; }
+      85%  { --page-bg: #3d1a3d; --page-bg-2: #331635; --page-fg: #ffeedd; }
+      100% { --page-bg: #0e0710; --page-bg-2: #19101c; --page-fg: #ffeedd; }
     }
 
-    /* Dark theme runs the same ramp backwards, so scrolling reads as a sunrise. */
-    [data-theme="dark"] .hero { animation-direction: reverse; }
+    /* Dark theme runs the same ramp backwards: night into day, a sunrise. */
+    :root[data-theme="dark"] { animation-direction: reverse; }
 
     /* The disc dims as it goes, so it fades into the sky rather than staying a
        bright blob on a night ground — it has no opaque earth to hide behind. */
@@ -355,7 +355,7 @@
   position: relative;
   z-index: 3;
 }
-[data-theme="dark"] .hero__title { mix-blend-mode: screen; color: var(--sun-yellow); }
+[data-lit="night"] .hero__title { mix-blend-mode: screen; color: var(--sun-yellow); }
 
 /* Gear */
 .gear {
@@ -377,6 +377,39 @@
 @keyframes gearSpin {
   from { transform: translate(var(--px, 0px), var(--py, 0px)) rotate(0deg); }
   to   { transform: translate(var(--px, 0px), var(--py, 0px)) rotate(360deg); }
+}
+
+/* ==========================================================================
+   Ambient drafting marks
+   ========================================================================== */
+.ornaments {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.ornament {
+  position: absolute;
+  aspect-ratio: 1;
+  opacity: 0.3;
+  animation: gearSpin 60s linear infinite;
+}
+.ornament > svg { width: 100%; height: 100%; display: block; }
+.ornament--amber   { color: var(--sun-amber); }
+.ornament--coral   { color: var(--sun-coral); }
+.ornament--magenta { color: var(--sun-magenta); }
+
+/* Content sits above the marks. Sections are already position:relative, but
+   .container-x is not, and unpositioned content paints below positioned
+   siblings regardless of source order. */
+section > .container-x { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ornament { animation: none; }
+}
+@media (max-width: 700px) {
+  .ornament { opacity: 0.18; }
 }
 
 /* ==========================================================================
@@ -445,8 +478,8 @@
    ========================================================================== */
 /* Sponsor logo theme swap (dual-asset) */
 .sponsor-logo--dark { display: none; }
-[data-theme="dark"] .sponsor-logo--light { display: none; }
-[data-theme="dark"] .sponsor-logo--dark  { display: block; }
+[data-lit="night"] .sponsor-logo--light { display: none; }
+[data-lit="night"] .sponsor-logo--dark  { display: block; }
 
 /* ==========================================================================
    Team — gradient hover + variants
@@ -466,7 +499,7 @@
 /* ==========================================================================
    Location — Leaflet overrides + pin
    ========================================================================== */
-[data-theme="dark"] .map-leaflet { filter: invert(0.92) hue-rotate(180deg) saturate(0.7) brightness(0.95); }
+[data-lit="night"] .map-leaflet { filter: invert(0.92) hue-rotate(180deg) saturate(0.7) brightness(0.95); }
 .sunset-pin { position: relative; }
 .sunset-pin__ring {
   position: absolute; top: 50%; left: 50%;
@@ -504,7 +537,7 @@
   width: auto;
   object-fit: contain;
 }
-[data-theme="dark"] .palco-pin-logo { filter: invert(1); }
+[data-lit="night"] .palco-pin-logo { filter: invert(1); }
 .palco-popup-logo {
   height: 1.5rem;
   width: auto;

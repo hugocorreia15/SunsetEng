@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Ornaments from "./Ornaments.jsx";
 import SectionHead from "./SectionHead.jsx";
 import { NUCLEOS, TEAM_DATA } from "../content.js";
 
@@ -18,6 +19,7 @@ export default function Team({ t }) {
 
   return (
     <section className="pt-12 pb-24 relative" id="team" data-screen-label="Team">
+      <Ornaments preset="team" />
       <div className="container-x">
         <SectionHead num={t.team.num} title={t.team.title} meta={t.team.meta} />
 
