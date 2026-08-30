@@ -71,7 +71,6 @@ export default function Hero({ t }) {
         <div className="hero__sun-track">
           <div ref={sunRef} className="hero__sun" />
         </div>
-        <div className="hero__ground" />
         <div className="hero__horizon" />
         <div className="hero__stripes" />
         <div ref={gearRef} className="gear gear--hero">

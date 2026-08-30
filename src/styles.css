@@ -196,10 +196,24 @@
    -------------------------------------------------------------------------- */
 /* The section is a scroll runway; the sky pins inside it for one viewport
    while the content slides up and away over the held horizon. */
+@property --hero-bg { syntax: "<color>"; inherits: true; initial-value: #fff8ef; }
+@property --hero-fg { syntax: "<color>"; inherits: true; initial-value: #140a16; }
+
 .hero {
   position: relative;
   height: 100vh;
+
+  /* Everything inside the hero reads these, so the meta panel, countdown,
+     borders and buttons all travel with the sky for free. */
+  --bg: var(--hero-bg);
+  --fg: var(--hero-fg);
+  --line: color-mix(in srgb, var(--hero-fg) 14%, transparent);
+  --line-strong: color-mix(in srgb, var(--hero-fg) 45%, transparent);
+
+  color: var(--fg);
 }
+
+.hero__sky { background: var(--hero-bg); }
 .hero__sky {
   position: sticky;
   top: 0;
@@ -226,6 +240,40 @@
     .hero { height: 165vh; }
     @media (max-width: 700px) { .hero { height: 150vh; } }
 
+    /* Night falls as the sun goes down. The ramp travels through the festival
+       palette — gold, coral, magenta, plum — rather than crossfading paper
+       straight to black, which passes through a dead grey at the midpoint.
+       The text flips over a deliberately short window for the same reason:
+       a slow fade from ink to paper spends its middle at no contrast. */
+    .hero {
+      animation: nightfall linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 6vh 92vh;
+    }
+    @keyframes nightfall {
+      0%   { --hero-bg: #fff8ef; --hero-fg: #140a16; }
+      30%  { --hero-bg: #ffe3c0; --hero-fg: #140a16; }
+      52%  { --hero-bg: #f7a678; --hero-fg: #140a16; }
+      62%  { --hero-bg: #c85f70; --hero-fg: #1a0d14; }
+      70%  { --hero-bg: #8d3560; --hero-fg: #ffeedd; }
+      85%  { --hero-bg: #3d1a3d; --hero-fg: #ffeedd; }
+      100% { --hero-bg: #150a1b; --hero-fg: #ffeedd; }
+    }
+
+    /* Dark theme runs the same ramp backwards, so scrolling reads as a sunrise. */
+    [data-theme="dark"] .hero { animation-direction: reverse; }
+
+    /* The disc dims as it goes, so it fades into the sky rather than staying a
+       bright blob on a night ground — it has no opaque earth to hide behind. */
+    .hero__sun {
+      animation: sunPulse 8s ease-in-out infinite, sunDim linear both;
+      animation-timeline: auto, scroll(root block);
+      animation-range: normal, 20vh 92vh;
+    }
+    @keyframes sunDim {
+      to { opacity: 0.22; filter: blur(14px); }
+    }
+
     .hero__sun-track {
       animation: sunSet linear both;
       animation-timeline: scroll(root block);
@@ -247,17 +295,7 @@
     }
 
     /* The last light concentrates on the horizon as the sun crosses it. */
-    /* Opaque earth below the horizon — this is what the sun actually sets behind.
-   Without it the sun sinks in front of the ground and never disappears. */
-.hero__ground {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 35%;
-  z-index: 1;
-  background: var(--bg);
-}
-
-.hero__horizon {
+    .hero__horizon {
       animation: horizonGlow linear both;
       animation-timeline: scroll(root block);
       animation-range: 0 72vh;
