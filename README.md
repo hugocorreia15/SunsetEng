@@ -4,14 +4,19 @@ Microsite for **Sunset d'Engenharias**, the festival run jointly by the ten engi
 
 Live: <https://sunset-eng.vercel.app>
 
-![The hero in light theme](docs/hero-light.webp)
+![The hero at rest](docs/hero.webp)
+
+Scrolling performs a sunset, and the whole page goes with it:
+
+| | | |
+|---|---|---|
+| ![At rest](docs/hero.webp) | ![Mid scroll](docs/dusk.webp) | ![Night](docs/night.webp) |
+| **At rest.** Sun on the horizon, rays out, gears as drafting linework. | **Mid scroll.** The palette travels through gold and coral as the sun drops. | **Night.** Every section below the hero holds the night it ended on. |
 
 | | |
 |---|---|
-| ![Dark theme](docs/hero-dark.webp) | ![Lineup](docs/lineup.webp) |
-| **Dark theme.** Theme lives on `<html data-theme>` and every colour re-cascades from CSS custom properties. | **Lineup.** All copy comes from `src/content.js`; no strings are hard-coded in components. |
-
-![Gallery](docs/gallery.webp)
+| ![Dark theme](docs/dark.webp) | ![Ambient marks](docs/ornaments.webp) |
+| **Dark theme runs it backwards** — starting at night and scrolling into day, a sunrise. The toggle picks which end of the cycle you begin at. | **Ambient marks.** Each is an instrument from one of the disciplines the ten núcleos study. |
 
 ---
 
@@ -82,6 +87,34 @@ Three things in that file are worth understanding:
 
 Scroll reveals use a single `IntersectionObserver` in `App.jsx` that adds `.is-visible` to anything with `.reveal`. The `.reveal` styles are scoped under a `.js-reveal` class set by `main.jsx`, so **if the script fails the content is still visible** rather than a page of `opacity: 0`. `prefers-reduced-motion` is honoured.
 
+### The scroll-linked sunset
+
+The site is named for a sunset, so scrolling performs one. It is **scroll-driven CSS**, not a scroll listener — `animation-timeline: scroll(root block)` on a handful of elements.
+
+- **`.hero__sky` is sticky** for one viewport, so the horizon holds still while the hero content slides up over it. This is load-bearing: without it the sun and the horizon scroll away together and no amount of descent reads as a sunset.
+- **`.hero__sun-track`** carries the descent for the disc *and* its ray field, so the two stay concentric. The sun keeps `sunPulse` and the pointer parallax on its own uncontested `transform`.
+- **`:root` runs `@keyframes nightfall`** with `both` fill. Three registered properties (`--page-bg`, `--page-bg-2`, `--page-fg`) feed `--bg`, `--fg` and both line tokens, so the entire document — sections, marquee, footer, controls, scrollbar — travels together and *holds* the night after the hero ends.
+- The ramp travels through the festival palette (gold → coral → magenta → plum) rather than crossfading paper straight to black, which passes through a dead grey at the midpoint. The text flips over a deliberately short window for the same reason.
+- **`[data-theme="dark"]` sets `animation-direction: reverse`**, so dark theme runs night → day: a sunrise. The theme toggle chooses which end of the cycle you start at.
+- The 165vh scroll runway **only exists when the animation runs**. Without `animation-timeline` support, or under reduced motion, `.hero` stays 100vh so nobody scrolls through dead space.
+
+### `data-lit`, and why it exists
+
+A CSS selector cannot key off an animated custom property, and a few things are discrete rather than interpolatable: the dual-asset sponsor logos, the map's invert filter, the grain's blend mode. Those key off `[data-lit="night"]`, set by a small rAF-throttled scroll handler in `App.jsx`.
+
+So there are two related but distinct attributes on `<html>`:
+
+| attribute | meaning |
+|---|---|
+| `data-theme` | which end of the day/night cycle you *start* at |
+| `data-lit` | which end is *currently showing*, after scroll |
+
+If you add anything that needs to flip between light and dark appearance, key it off `data-lit`, **not** `data-theme`.
+
+### Ambient marks
+
+`Ornaments.jsx` draws technical marks behind each section — bearings, springs, circuit traces, waveforms, trusses, hex lattices, flasks, a double helix, contours, protractors, calipers, gears. They are not abstract: each references one of the engineering disciplines the ten núcleos study. Arrangements live in one `PRESETS` map, one entry per section. Round marks rotate, marks with an obvious up drift instead.
+
 ---
 
 ## Assets — read this before committing any
@@ -121,6 +154,8 @@ The gallery grid shows the **poster image**, never a `<video>`. The video elemen
 
 **Sponsor logos with dark variants** use a two-`<img>` swap (`.sponsor-logo--light` / `--dark`) toggled by CSS. A sponsor with `srcDark` in `content.js` needs both files present.
 
+**The scrollbar is styled twice on purpose.** `::-webkit-scrollbar` gives Chrome and Safari the gradient thumb. `scrollbar-color` is gated behind a Firefox-only `@supports` check, because setting it in Chrome *silently disables* every `::-webkit-scrollbar` rule — you lose the styling with no error.
+
 **Scroll-lock is shared.** Both the mobile nav and the gallery lightbox set `document.body.style.overflow`. Each only touches it while actually open, so they cannot clear each other's lock. Preserve that if you add a third overlay.
 
 ---
@@ -135,8 +170,7 @@ vercel --prod        # manual, rarely needed
 
 ## Branches
 
-- **`master`** — production.
-- **`design/scroll-sunset`** — in-progress visual overhaul: the sun sets as you scroll and carries the whole page from day into night, the gears are redrawn as drafting linework, and ambient technical marks sit behind every section. Not merged. See that branch's README for how it works.
+- **`master`** — production. The visual overhaul (`design/scroll-sunset`, PR #2) is merged in.
 
 ## Open decisions
 
