@@ -63,12 +63,13 @@ export default function Hero({ t }) {
           Without this the sun and the horizon scroll away together and no
           amount of descent reads as a sunset. */}
       <div className="hero__sky">
-        <div className="hero__rays-layer">
-          <div className="hero__rays"><SunFlames /></div>
-        </div>
-        {/* The track carries the scroll-driven descent so the sun itself keeps
-            its own pulse and pointer parallax on an uncontested transform. */}
+        {/* The track carries the scroll-driven descent for the disc and its rays
+            together, so the sun itself keeps its own pulse and pointer parallax
+            on an uncontested transform. */}
         <div className="hero__sun-track">
+          <div className="hero__rays-layer">
+            <div className="hero__rays"><SunFlames /></div>
+          </div>
           <div ref={sunRef} className="hero__sun" />
         </div>
         <div className="hero__horizon" />

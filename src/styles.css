@@ -129,6 +129,29 @@
     text-transform: uppercase;
   }
 
+  /* The scrollbar is part of the page, not chrome around it. Square, like
+     every other edge in the design, and painted from the animated tokens so
+     it goes down with the sun. */
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--fg) 7%, transparent);
+    border-left: 1px solid var(--line);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--sun-coral), var(--sun-amber));
+    border: 3px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--sun-magenta), var(--sun-coral));
+  }
+  ::-webkit-scrollbar-corner { background: transparent; }
+
+  /* Firefox only: setting scrollbar-color in Chrome would disable the
+     ::-webkit-scrollbar rules above, so it is gated to engines without them. */
+  @supports (scrollbar-width: thin) and (not (selector(::-webkit-scrollbar))) {
+    html { scrollbar-width: thin; scrollbar-color: var(--sun-coral) transparent; }
+  }
+
   button { cursor: pointer; font: inherit; color: inherit; background: transparent; border: 0; padding: 0; }
   a { color: inherit; text-decoration: none; }
   ul { list-style: none; }
@@ -288,7 +311,7 @@
     .hero__rays-layer {
       animation: raysOut linear both;
       animation-timeline: scroll(root block);
-      animation-range: 2vh 56vh;
+      animation-range: 10vh 74vh;
     }
     @keyframes raysOut {
       to { opacity: 0; }
@@ -316,7 +339,10 @@
 }
 
 .hero__rays {
-  position: absolute; left: 50%; bottom: -20%;
+  /* Concentric with the disc: the sun's centre sits at -5% + 40vmin from the
+     bottom, so a 120vmin ray field has to start at -5% - 20vmin to share it.
+     Off-centre rays read as a second, invisible sun. */
+  position: absolute; left: 50%; bottom: calc(-5% - 20vmin);
   transform: translateX(-50%);
   width: 120vmin; height: 120vmin;
   z-index: 0;
@@ -391,9 +417,14 @@
 }
 .ornament {
   position: absolute;
-  aspect-ratio: 1;
   opacity: 0.3;
-  animation: gearSpin 60s linear infinite;
+}
+/* Round marks rotate; the ones with an obvious up drift instead. */
+.ornament--spin  { animation: gearSpin 60s linear infinite; }
+.ornament--drift { animation: ornamentDrift 26s ease-in-out infinite alternate; }
+@keyframes ornamentDrift {
+  from { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
+  to   { transform: translate3d(0, -2.2vmin, 0) rotate(1.5deg); }
 }
 .ornament > svg { width: 100%; height: 100%; display: block; }
 .ornament--amber   { color: var(--sun-amber); }
@@ -406,7 +437,7 @@
 section > .container-x { position: relative; z-index: 1; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ornament { animation: none; }
+  .ornament--spin, .ornament--drift { animation: none; }
 }
 @media (max-width: 700px) {
   .ornament { opacity: 0.18; }
